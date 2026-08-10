@@ -16,8 +16,8 @@ import { Card } from '@/components/ui/Card';
 
 import { useOrderDetails } from '@/hooks/useOrders';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useTranslation } from '@/hooks/useTranslation';
 
-import { HE } from '@/constants/hebrew';
 import { Spacing } from '@/constants/theme';
 import { formatPrice, formatDateTime, formatOrderNumber } from '@/utils/format';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -27,6 +27,7 @@ export default function OrderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const theme = useThemeColor();
+  const { t, language } = useTranslation();
   
   const { data: order, isLoading, isError } = useOrderDetails(id as string);
 
@@ -42,9 +43,9 @@ export default function OrderDetailScreen() {
     return (
       <ThemedView style={styles.centerContainer}>
         <Text variant="lg" color={theme.error}>
-          {HE.common.error}
+          {t.common.error}
         </Text>
-        <Button title={HE.common.back} onPress={() => router.back()} style={{ marginTop: 16 }} />
+        <Button title={t.common.back} onPress={() => router.back()} style={{ marginTop: 16 }} />
       </ThemedView>
     );
   }
@@ -56,7 +57,7 @@ export default function OrderDetailScreen() {
         <AnimatedPressable onPress={() => router.back()} style={styles.backButton}>
            <MaterialIcons name="arrow-forward" size={24} color={theme.text} />
         </AnimatedPressable>
-        <Text variant="xl" weight="bold">{HE.order.details}</Text>
+        <Text variant="xl" weight="bold">{t.order.details}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -65,7 +66,7 @@ export default function OrderDetailScreen() {
         {/* Order Summary Header */}
         <Animated.View entering={FadeInUp.delay(100)} style={styles.summaryHeader}>
           <Text variant="2xl" weight="bold">{formatOrderNumber(order.id)}</Text>
-          <Text variant="md" color={theme.textSecondary}>{formatDateTime(order.created_at)}</Text>
+          <Text variant="md" color={theme.textSecondary}>{formatDateTime(order.created_at, language)}</Text>
         </Animated.View>
 
         {/* Timeline */}
@@ -77,7 +78,7 @@ export default function OrderDetailScreen() {
               <View style={[styles.deliveryInfo, { borderTopColor: theme.borderLight }]}>
                 <MaterialIcons name="event-available" size={20} color={theme.textSecondary} />
                 <Text variant="md" color={theme.textSecondary} style={{ marginRight: 8 }}>
-                  זמן משלוח משוער: {order.delivery_slot}
+                  {language === 'he' ? 'זמן משלוח משוער:' : 'Estimated delivery:'} {order.delivery_slot}
                 </Text>
               </View>
             )}
@@ -88,7 +89,7 @@ export default function OrderDetailScreen() {
         <Animated.View entering={FadeInUp.delay(300)}>
           <Card style={styles.sectionCard} padding={false}>
             <View style={{ padding: Spacing.md }}>
-              <Text variant="lg" weight="bold">{HE.order.items}</Text>
+              <Text variant="lg" weight="bold">{t.order.items}</Text>
             </View>
             
             {order.items?.map((item, index) => (
@@ -114,15 +115,17 @@ export default function OrderDetailScreen() {
             
             <View style={[styles.totalsContainer, { backgroundColor: theme.surfaceElevated }]}>
                <View style={styles.totalRow}>
-                 <Text variant="md" color={theme.textSecondary}>{HE.cart.subtotal}</Text>
+                 <Text variant="md" color={theme.textSecondary}>{t.cart.subtotal}</Text>
                  <Text variant="md">{formatPrice(order.subtotal)}</Text>
                </View>
                <View style={styles.totalRow}>
-                 <Text variant="md" color={theme.textSecondary}>{HE.cart.deliveryFee}</Text>
-                 <Text variant="md">{formatPrice(order.delivery_fee)}</Text>
+                 <Text variant="md" color={theme.textSecondary}>{t.cart.deliveryFee}</Text>
+                 <Text variant="md">
+                   {order.delivery_fee === 0 ? (language === 'he' ? 'חינם' : 'Free') : formatPrice(order.delivery_fee)}
+                 </Text>
                </View>
                <View style={[styles.totalRow, { marginTop: Spacing.sm }]}>
-                 <Text variant="lg" weight="bold">{HE.cart.total}</Text>
+                 <Text variant="lg" weight="bold">{t.cart.total}</Text>
                  <Text variant="xl" weight="bold" color={theme.primary}>{formatPrice(order.grand_total)}</Text>
                </View>
             </View>
@@ -133,12 +136,14 @@ export default function OrderDetailScreen() {
         {order.address && (
           <Animated.View entering={FadeInUp.delay(400)}>
             <Card style={styles.sectionCard}>
-              <Text variant="lg" weight="bold" style={{ marginBottom: Spacing.sm }}>כתובת למשלוח</Text>
+              <Text variant="lg" weight="bold" style={{ marginBottom: Spacing.sm }}>
+                {language === 'he' ? 'כתובת למשלוח' : 'Delivery address'}
+              </Text>
               <Text variant="md">{order.address.street}</Text>
               <Text variant="md">{order.address.city}</Text>
               {order.address.notes && (
                 <Text variant="sm" color={theme.textSecondary} style={{ marginTop: Spacing.xs }}>
-                  הערות: {order.address.notes}
+                  {language === 'he' ? 'הערות:' : 'Notes:'} {order.address.notes}
                 </Text>
               )}
             </Card>

@@ -12,10 +12,10 @@ import { Card } from '@/components/ui/Card';
 import { Text } from '@/components/ui/Text';
 import { ThemedView } from '@/components/ui/ThemedView';
 
-import { HE } from '@/constants/hebrew';
 import { Spacing } from '@/constants/theme';
 import { useOrders } from '@/hooks/useOrders';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useAuthStore } from '@/stores/authStore';
 import { formatDateTime, formatOrderNumber, formatPrice } from '@/utils/format';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -24,6 +24,7 @@ import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 export default function OrdersScreen() {
   const insets = useSafeAreaInsets();
   const theme = useThemeColor();
+  const { t, language } = useTranslation();
   const customer = useAuthStore(s => s.customer);
   
   const { data: orders, isLoading, isError, refetch, isRefetching } = useOrders();
@@ -31,8 +32,10 @@ export default function OrdersScreen() {
   if (!customer) {
     return (
       <ThemedView style={styles.centerContainer}>
-        <Text variant="lg" style={{ marginBottom: Spacing.md }}>עליך להתחבר כדי לצפות בהזמנות</Text>
-        <Button title="התחברות" onPress={() => router.push('/account')} />
+        <Text variant="lg" style={{ marginBottom: Spacing.md }}>
+          {language === 'he' ? 'עליך להתחבר כדי לצפות בהזמנות' : 'You need to sign in to view your orders'}
+        </Text>
+        <Button title={t.auth.signIn} onPress={() => router.push('/account')} />
       </ThemedView>
     );
   }
@@ -50,7 +53,7 @@ export default function OrdersScreen() {
   };
 
   const getStatusLabel = (status: string) => {
-    return HE.order.statuses[status as keyof typeof HE.order.statuses] || status;
+    return t.order.statuses[status as keyof typeof t.order.statuses] || status;
   };
 
   if (isLoading && !isRefetching) {
@@ -69,13 +72,13 @@ export default function OrdersScreen() {
             <MaterialIcons name="receipt-long" size={64} color={theme.border} />
           </View>
           <Text variant="2xl" weight="bold" style={styles.emptyTitle}>
-            {HE.order.empty}
+            {t.order.empty}
           </Text>
           <Text variant="md" color={theme.textSecondary} style={styles.emptySubtitle}>
-            {HE.order.emptySubtitle}
+            {t.order.emptySubtitle}
           </Text>
           <Button 
-            title={HE.cart.startShopping} 
+            title={t.cart.startShopping} 
             onPress={() => router.push('/')}
           />
         </Animated.View>
@@ -86,7 +89,7 @@ export default function OrdersScreen() {
   return (
     <ThemedView style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + Spacing.md }]}>
-        <Text variant="2xl" weight="bold">{HE.order.title}</Text>
+        <Text variant="2xl" weight="bold">{t.order.title}</Text>
       </View>
 
       <FlatList
@@ -108,7 +111,7 @@ export default function OrdersScreen() {
                     {formatOrderNumber(item.id)}
                   </Text>
                   <Text variant="sm" color={theme.textSecondary}>
-                    {formatDateTime(item.created_at)}
+                    {formatDateTime(item.created_at, language)}
                   </Text>
                 </View>
                 <Badge 
@@ -121,7 +124,9 @@ export default function OrdersScreen() {
 
               <View style={styles.cardFooter}>
                  <Text variant="md" color={theme.textSecondary}>
-                   {item.items?.length || 0} פריטים
+                   {language === 'he'
+                     ? `${item.items?.length || 0} פריטים`
+                     : `${item.items?.length || 0} items`}
                  </Text>
                  <Text variant="lg" weight="bold" color={theme.primary}>
                    {formatPrice(item.grand_total)}

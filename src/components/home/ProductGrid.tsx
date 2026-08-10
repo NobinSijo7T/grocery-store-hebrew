@@ -2,9 +2,9 @@
 // ProductGrid Component
 // ============================================================
 
-import { HE } from '@/constants/hebrew';
 import { Layout, Spacing } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { Product } from '@/types/models';
 import { staggerDelay } from '@/utils/animations';
 import React from 'react';
@@ -28,6 +28,7 @@ export function ProductGrid({
   header,
 }: ProductGridProps) {
   const theme = useThemeColor();
+  const { t } = useTranslation();
 
   if (isLoading && products.length === 0) {
     return (
@@ -48,7 +49,7 @@ export function ProductGrid({
     return (
       <View style={styles.emptyContainer}>
         <Text variant="lg" color={theme.textSecondary}>
-          {HE.product.noResults}
+          {t.product.noResults}
         </Text>
       </View>
     );

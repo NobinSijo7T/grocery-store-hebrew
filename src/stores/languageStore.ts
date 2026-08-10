@@ -11,7 +11,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 export type Language = 'he' | 'en';
-export type Translations = typeof HE;
+export type Translations = typeof HE | typeof EN;
 
 interface LanguageState {
   language: Language;

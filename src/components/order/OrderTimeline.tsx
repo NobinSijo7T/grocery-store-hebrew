@@ -6,28 +6,28 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from '../ui/Text';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Spacing } from '@/constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
-import { HE } from '@/constants/hebrew';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 
 interface OrderTimelineProps {
   status: string;
 }
 
-const TIMELINE_STEPS = [
-  { id: 'pending', icon: 'schedule', label: HE.order.statuses.pending },
-  { id: 'confirmed', icon: 'check-circle', label: HE.order.statuses.confirmed },
-  { id: 'packing', icon: 'inventory-2', label: HE.order.statuses.packing },
-  { id: 'out_for_delivery', icon: 'local-shipping', label: HE.order.statuses.out_for_delivery },
-  { id: 'delivered', icon: 'home', label: HE.order.statuses.delivered },
-];
-
 export function OrderTimeline({ status }: OrderTimelineProps) {
   const theme = useThemeColor();
+  const { t } = useTranslation();
+  const timelineSteps = [
+    { id: 'pending', icon: 'schedule', label: t.order.statuses.pending },
+    { id: 'confirmed', icon: 'check-circle', label: t.order.statuses.confirmed },
+    { id: 'packing', icon: 'inventory-2', label: t.order.statuses.packing },
+    { id: 'out_for_delivery', icon: 'local-shipping', label: t.order.statuses.out_for_delivery },
+    { id: 'delivered', icon: 'home', label: t.order.statuses.delivered },
+  ];
 
   // Determine current step index
-  let currentIndex = TIMELINE_STEPS.findIndex((step) => step.id === status);
+  let currentIndex = timelineSteps.findIndex((step) => step.id === status);
   
   // Handle cancelled state specially
   if (status === 'cancelled') {
@@ -35,7 +35,7 @@ export function OrderTimeline({ status }: OrderTimelineProps) {
       <View style={[styles.cancelledContainer, { backgroundColor: theme.error + '20' }]}>
         <MaterialIcons name="cancel" size={32} color={theme.error} style={{ marginBottom: 8 }} />
         <Text variant="lg" weight="bold" color={theme.error}>
-          {HE.order.statuses.cancelled}
+          {t.order.statuses.cancelled}
         </Text>
       </View>
     );
@@ -46,10 +46,10 @@ export function OrderTimeline({ status }: OrderTimelineProps) {
 
   return (
     <View style={styles.container}>
-      {TIMELINE_STEPS.map((step, index) => {
+      {timelineSteps.map((step, index) => {
         const isCompleted = index < currentIndex;
         const isCurrent = index === currentIndex;
-        const isLast = index === TIMELINE_STEPS.length - 1;
+        const isLast = index === timelineSteps.length - 1;
 
         let iconColor = theme.border;
         let textColor = theme.textTertiary;

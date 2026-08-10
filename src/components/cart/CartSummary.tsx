@@ -6,9 +6,9 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from '../ui/Text';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useTranslation } from '@/hooks/useTranslation';
 import { BorderRadius, Spacing } from '@/constants/theme';
 import { formatPrice } from '@/utils/format';
-import { HE } from '@/constants/hebrew';
 import { ENV } from '@/lib/env';
 
 interface CartSummaryProps {
@@ -25,6 +25,7 @@ export function CartSummary({
   total,
 }: CartSummaryProps) {
   const theme = useThemeColor();
+  const { t, language } = useTranslation();
 
   const isFreeDelivery = deliveryFee === 0;
   const amountToFreeDelivery = ENV.FREE_DELIVERY_THRESHOLD - subtotal;
@@ -36,7 +37,9 @@ export function CartSummary({
       {!isFreeDelivery && amountToFreeDelivery > 0 && (
         <View style={styles.progressContainer}>
            <Text variant="sm" color={theme.textSecondary} style={styles.progressText}>
-             עוד <Text weight="bold" color={theme.primary}>{formatPrice(amountToFreeDelivery)}</Text> למשלוח חינם!
+             {language === 'he' ? 'עוד ' : ''}
+             <Text weight="bold" color={theme.primary}>{formatPrice(amountToFreeDelivery)}</Text>
+             {language === 'he' ? ' למשלוח חינם!' : ' until free delivery!'}
            </Text>
            <View style={[styles.progressBarBg, { backgroundColor: theme.border }]}>
               <View 
@@ -55,27 +58,27 @@ export function CartSummary({
       {isFreeDelivery && (
          <View style={[styles.freeDeliveryBadge, { backgroundColor: theme.primaryLight }]}>
            <Text variant="sm" weight="semiBold" color={theme.primaryDark} style={styles.freeDeliveryText}>
-             {HE.cart.freeDelivery}
+             {t.cart.freeDelivery}
            </Text>
          </View>
       )}
 
       {/* Summary Rows */}
       <View style={styles.row}>
-        <Text variant="md" color={theme.textSecondary}>{HE.cart.subtotal}</Text>
+        <Text variant="md" color={theme.textSecondary}>{t.cart.subtotal}</Text>
         <Text variant="md">{formatPrice(subtotal)}</Text>
       </View>
 
       <View style={styles.row}>
-        <Text variant="md" color={theme.textSecondary}>{HE.cart.deliveryFee}</Text>
+        <Text variant="md" color={theme.textSecondary}>{t.cart.deliveryFee}</Text>
         <Text variant="md" color={isFreeDelivery ? theme.success : theme.text}>
-          {isFreeDelivery ? 'חינם' : formatPrice(deliveryFee)}
+          {isFreeDelivery ? (language === 'he' ? 'חינם' : 'Free') : formatPrice(deliveryFee)}
         </Text>
       </View>
 
       {discount > 0 && (
         <View style={styles.row}>
-          <Text variant="md" color={theme.error}>{HE.cart.discount}</Text>
+          <Text variant="md" color={theme.error}>{t.cart.discount}</Text>
           <Text variant="md" color={theme.error}>-{formatPrice(discount)}</Text>
         </View>
       )}
@@ -83,7 +86,7 @@ export function CartSummary({
       <View style={[styles.divider, { backgroundColor: theme.border }]} />
 
       <View style={styles.row}>
-        <Text variant="lg" weight="bold">{HE.cart.total}</Text>
+        <Text variant="lg" weight="bold">{t.cart.total}</Text>
         <Text variant="2xl" weight="bold" color={theme.primary}>
           {formatPrice(total)}
         </Text>

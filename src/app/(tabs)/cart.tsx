@@ -12,8 +12,8 @@ import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
 import { ThemedView } from '@/components/ui/ThemedView';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useTranslation } from '@/hooks/useTranslation';
 
-import { HE } from '@/constants/hebrew';
 import { Spacing } from '@/constants/theme';
 import { useCartStore } from '@/stores/cartStore';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -22,6 +22,7 @@ import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 export default function CartScreen() {
   const insets = useSafeAreaInsets();
   const theme = useThemeColor();
+  const { t } = useTranslation();
   
   const { 
     items, 
@@ -45,13 +46,13 @@ export default function CartScreen() {
             <MaterialIcons name="shopping-cart" size={64} color={theme.border} />
           </View>
           <Text variant="2xl" weight="bold" style={styles.emptyTitle}>
-            {HE.cart.empty}
+            {t.cart.empty}
           </Text>
           <Text variant="md" color={theme.textSecondary} style={styles.emptySubtitle}>
-            {HE.cart.emptySubtitle}
+            {t.cart.emptySubtitle}
           </Text>
           <Button 
-            title={HE.cart.startShopping} 
+            title={t.cart.startShopping} 
             onPress={() => router.push('/')}
             style={styles.startShoppingBtn}
           />
@@ -64,7 +65,7 @@ export default function CartScreen() {
     <ThemedView style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + Spacing.md }]}>
         <Text variant="2xl" weight="bold">
-          {HE.cart.title}
+          {t.cart.title}
         </Text>
       </View>
 
@@ -106,7 +107,7 @@ export default function CartScreen() {
         }
       ]}>
         <Button
-          title={`${HE.cart.checkout} • ${HE.common.shekel}${total().toFixed(2)}`}
+          title={`${t.cart.checkout} • ${t.common.shekel}${total().toFixed(2)}`}
           onPress={handleCheckout}
           fullWidth
           size="lg"
