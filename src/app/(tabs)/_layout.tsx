@@ -2,9 +2,9 @@
 // Tabs Layout
 // ============================================================
 
-import { HE } from '@/constants/hebrew';
 import { Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useTranslation } from '@/hooks/useTranslation';
 import { useCartStore } from '@/stores/cartStore';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
@@ -13,6 +13,7 @@ import { Platform } from 'react-native';
 export default function TabLayout() {
   const theme = useThemeColor();
   const itemCount = useCartStore((s) => s.itemCount());
+  const { t } = useTranslation();
 
   return (
     <Tabs
@@ -37,7 +38,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: HE.nav.home,
+          title: t.nav.home,
           tabBarIcon: ({ color, focused }) => (
             <MaterialIcons name="home" size={24} color={color} />
           ),
@@ -46,7 +47,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="cart"
         options={{
-          title: HE.nav.cart,
+          title: t.nav.cart,
           tabBarBadge: itemCount > 0 ? itemCount : undefined,
           tabBarBadgeStyle: {
             backgroundColor: theme.badge,
@@ -60,7 +61,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="orders"
         options={{
-          title: HE.nav.orders,
+          title: t.nav.orders,
           tabBarIcon: ({ color, focused }) => (
             <MaterialIcons name="receipt" size={24} color={color} />
           ),
@@ -69,7 +70,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="account"
         options={{
-          title: HE.nav.account,
+          title: t.nav.account,
           tabBarIcon: ({ color, focused }) => (
             <MaterialIcons name="person" size={24} color={color} />
           ),

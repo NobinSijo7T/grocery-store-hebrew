@@ -17,11 +17,12 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { useAuthStore } from '@/stores/authStore';
 import { useThemeStore } from '@/stores/themeStore';
 
-import { HE } from '@/constants/hebrew';
 import { BorderRadius, Spacing } from '@/constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+
+type Language = 'he' | 'en';
 
 export default function AccountScreen() {
   const insets = useSafeAreaInsets();
@@ -30,15 +31,40 @@ export default function AccountScreen() {
   const { session, customer, isAdmin } = useAuthStore();
   const { signOut } = useAuth();
   const { isDark, toggle } = useThemeStore();
+  const { t, language, setLanguage } = useTranslation();
+
+  const handleLanguageChange = (lang: Language) => {
+    Alert.alert(
+      language === 'he' ? 'שינוי שפה' : 'Change Language',
+      language === 'he' 
+        ? 'שינוי השפה ידרוש הפעלה מחדש של האפליקציה. האם להמשיך?' 
+        : 'Changing language requires app restart. Continue?',
+      [
+        { text: language === 'he' ? 'ביטול' : 'Cancel', style: 'cancel' },
+        { 
+          text: language === 'he' ? 'המשך' : 'Continue', 
+          onPress: () => {
+            setLanguage(lang);
+            Alert.alert(
+              language === 'he' ? 'הפעל מחדש' : 'Restart Required',
+              language === 'he' 
+                ? 'אנא סגור והפעל מחדש את האפליקציה כדי להחיל את השינוי' 
+                : 'Please close and restart the app to apply the change'
+            );
+          }
+        },
+      ]
+    );
+  };
 
   const handleSignOut = () => {
     Alert.alert(
-      'התנתקות',
-      HE.account.signOutConfirm,
+      t.account.signOut,
+      t.account.signOutConfirm,
       [
-        { text: HE.common.cancel, style: 'cancel' },
+        { text: t.common.cancel, style: 'cancel' },
         { 
-          text: HE.common.yes, 
+          text: t.common.yes, 
           style: 'destructive',
           onPress: async () => {
             await signOut();
@@ -69,26 +95,28 @@ export default function AccountScreen() {
     return (
       <ThemedView style={styles.container}>
         <View style={[styles.header, { paddingTop: insets.top + Spacing.md }]}>
-          <Text variant="2xl" weight="bold">{HE.account.title}</Text>
+          <Text variant="2xl" weight="bold">{t.account.title}</Text>
         </View>
         
         <View style={styles.loginContainer}>
           <Image source={require('../../../assets/images/logo.svg')} style={{ width: 80, height: 80, marginBottom: Spacing.lg }} contentFit="contain" />
           <Text variant="xl" weight="bold" style={{ marginBottom: Spacing.sm }}>
-            התחבר לחשבון שלך
+            {language === 'he' ? 'התחבר לחשבון שלך' : 'Sign in to your account'}
           </Text>
           <Text variant="md" color={theme.textSecondary} style={{ textAlign: 'center', marginBottom: Spacing.xl }}>
-            התחבר כדי לצפות בהיסטוריית הזמנות, לשמור כתובות ולהנות ממבצעים אישיים
+            {language === 'he' 
+              ? 'התחבר כדי לצפות בהיסטוריית הזמנות, לשמור כתובות ולהנות ממבצעים אישיים'
+              : 'Sign in to view order history, save addresses and enjoy personal offers'}
           </Text>
           
           <Button 
-            title={HE.auth.signIn} 
+            title={t.auth.signIn} 
             onPress={() => router.push('/(auth)/login' as any)} 
             fullWidth 
             style={{ marginBottom: Spacing.md }}
           />
           <Button 
-            title={HE.auth.signUp} 
+            title={t.auth.signUp} 
             variant="outline"
             onPress={() => router.push('/(auth)/register' as any)} 
             fullWidth 
@@ -101,7 +129,7 @@ export default function AccountScreen() {
   return (
     <ThemedView style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + Spacing.md }]}>
-        <Text variant="2xl" weight="bold">{HE.account.title}</Text>
+        <Text variant="2xl" weight="bold">{t.account.title}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -110,11 +138,11 @@ export default function AccountScreen() {
         <Animated.View entering={FadeInUp} style={[styles.profileCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
           <View style={[styles.avatar, { backgroundColor: theme.primaryLight }]}>
             <Text variant="2xl" weight="bold" color={theme.primaryDark}>
-              {customer?.full_name?.charAt(0) || 'מ'}
+              {customer?.full_name?.charAt(0) || (language === 'he' ? 'מ' : 'U')}
             </Text>
           </View>
           <View style={styles.profileInfo}>
-            <Text variant="xl" weight="bold">{customer?.full_name || 'משתמש'}</Text>
+            <Text variant="xl" weight="bold">{customer?.full_name || (language === 'he' ? 'משתמש' : 'User')}</Text>
             <Text variant="md" color={theme.textSecondary}>{session.user.email}</Text>
             {customer?.phone && (
               <Text variant="md" color={theme.textSecondary}>{customer.phone}</Text>
@@ -124,31 +152,38 @@ export default function AccountScreen() {
 
         {/* Menu Sections */}
         <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-          {renderMenuItem('person-outline', HE.account.profile, () => {}, null, 1)}
-          {renderMenuItem('location-on', HE.account.addresses, () => {}, null, 2)}
-          {renderMenuItem('favorite-border', HE.account.favorites, () => router.push('/favorites'), null, 3)}
-          {renderMenuItem('receipt-long', HE.account.orders, () => router.push('/orders'), null, 4)}
+          {renderMenuItem('person-outline', t.account.profile, () => {}, null, 1)}
+          {renderMenuItem('location-on', t.account.addresses, () => {}, null, 2)}
+          {renderMenuItem('favorite-border', t.account.favorites, () => router.push('/favorites'), null, 3)}
+          {renderMenuItem('receipt-long', t.account.orders, () => router.push('/orders'), null, 4)}
         </View>
 
         <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
           {renderMenuItem(
             isDark ? 'dark-mode' : 'light-mode', 
-            HE.account.darkMode, 
+            t.account.darkMode, 
             toggle, 
             <Switch value={isDark} onValueChange={toggle} trackColor={{ true: theme.primary }} />, 
             5
           )}
-          {renderMenuItem('help-outline', HE.account.support, () => {}, null, 6)}
+          {renderMenuItem(
+            'language', 
+            language === 'he' ? 'שפה / Language' : 'Language / שפה',
+            () => handleLanguageChange(language === 'he' ? 'en' : 'he'), 
+            <Text variant="sm" color={theme.textSecondary}>{language === 'he' ? 'עברית' : 'English'}</Text>, 
+            6
+          )}
+          {renderMenuItem('help-outline', t.account.support, () => {}, null, 7)}
         </View>
 
         {isAdmin && (
           <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            {renderMenuItem('admin-panel-settings', HE.account.adminPanel, () => router.push('/(admin)/dashboard' as any), null, 7)}
+            {renderMenuItem('admin-panel-settings', t.account.adminPanel, () => router.push('/(admin)/dashboard' as any), null, 8)}
           </View>
         )}
 
         <View style={[styles.section, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-          {renderMenuItem('logout', HE.account.signOut, handleSignOut, null, 8)}
+          {renderMenuItem('logout', t.account.signOut, handleSignOut, null, 9)}
         </View>
 
       </ScrollView>
