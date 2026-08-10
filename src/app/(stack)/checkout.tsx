@@ -2,26 +2,26 @@
 // Checkout Screen
 // ============================================================
 
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { useState } from 'react';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ThemedView } from '@/components/ui/ThemedView';
-import { Text } from '@/components/ui/Text';
+import { CartSummary } from '@/components/cart/CartSummary';
+import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
-import { CartSummary } from '@/components/cart/CartSummary';
+import { Text } from '@/components/ui/Text';
+import { ThemedView } from '@/components/ui/ThemedView';
 
-import { useThemeColor } from '@/hooks/useThemeColor';
-import { useCartStore } from '@/stores/cartStore';
-import { useAuthStore } from '@/stores/authStore';
 import { HE } from '@/constants/hebrew';
-import { Spacing, BorderRadius } from '@/constants/theme';
+import { BorderRadius, Spacing } from '@/constants/theme';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { supabase } from '@/lib/supabase';
+import { useAuthStore } from '@/stores/authStore';
+import { useCartStore } from '@/stores/cartStore';
 import { MaterialIcons } from '@expo/vector-icons';
 import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
-import { supabase } from '@/lib/supabase';
 
 type CheckoutStep = 'address' | 'deliveryTime' | 'payment';
 
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse', // RTL
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing.2xl,
+    marginBottom: Spacing['2xl'],
   },
   stepDot: {
     width: 16,

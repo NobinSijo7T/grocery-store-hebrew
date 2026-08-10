@@ -2,15 +2,14 @@
 // HeroBanner Component
 // ============================================================
 
-import React from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
-import Carousel from 'react-native-reanimated-carousel';
-import { Image } from 'expo-image';
-import { Text } from '../ui/Text';
-import { AnimatedPressable } from '../ui/AnimatedPressable';
+import { BorderRadius, Spacing } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { BorderRadius, Spacing, Layout } from '@/constants/theme';
 import type { Banner } from '@/types/models';
+import { Image } from 'expo-image';
+import { Dimensions, StyleSheet, View } from 'react-native';
+import Carousel from 'react-native-reanimated-carousel';
+import { AnimatedPressable } from '../ui/AnimatedPressable';
+import { Text } from '../ui/Text';
 
 interface HeroBannerProps {
   banners: Banner[];
@@ -94,7 +93,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: 'center',
-    padding: Spacing.2xl,
+    padding: Spacing['2xl'],
     alignItems: 'flex-start', // RTL: text starts on the right if I18nManager is active, but we can explicitly set textAlign in Text
   },
   title: {

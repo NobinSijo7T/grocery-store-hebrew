@@ -2,26 +2,26 @@
 // Account Screen
 // ============================================================
 
-import React from 'react';
-import { View, StyleSheet, ScrollView, Switch, Alert } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import React from 'react';
+import { Alert, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ThemedView } from '@/components/ui/ThemedView';
-import { Text } from '@/components/ui/Text';
-import { Button } from '@/components/ui/Button';
 import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
+import { Button } from '@/components/ui/Button';
+import { Text } from '@/components/ui/Text';
+import { ThemedView } from '@/components/ui/ThemedView';
 
+import { useAuth } from '@/hooks/useAuth';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useAuthStore } from '@/stores/authStore';
 import { useThemeStore } from '@/stores/themeStore';
-import { useAuth } from '@/hooks/useAuth';
 
 import { HE } from '@/constants/hebrew';
-import { Spacing, BorderRadius } from '@/constants/theme';
+import { BorderRadius, Spacing } from '@/constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
-import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Image } from 'expo-image';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 
 export default function AccountScreen() {
   const insets = useSafeAreaInsets();
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   },
   loginContainer: {
     flex: 1,
-    padding: Spacing.2xl,
+    padding: Spacing['2xl'],
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -2,17 +2,17 @@
 // ProductGrid Component
 // ============================================================
 
+import { HE } from '@/constants/hebrew';
+import { Layout, Spacing } from '@/constants/theme';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import type { Product } from '@/types/models';
+import { staggerDelay } from '@/utils/animations';
 import React from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { ProductCard } from '../product/ProductCard';
 import { Skeleton } from '../ui/Skeleton';
 import { Text } from '../ui/Text';
-import { useThemeColor } from '@/hooks/useThemeColor';
-import { Spacing, Layout } from '@/constants/theme';
-import type { Product } from '@/types/models';
-import Animated, { FadeIn } from 'react-native-reanimated';
-import { HE } from '@/constants/hebrew';
-import { staggerDelay } from '@/utils/animations';
 
 interface ProductGridProps {
   products: Product[];
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: Spacing.lg,
-    paddingBottom: Spacing.4xl, // Extra space for tab bar or bottom sheet
+    paddingBottom: Spacing['4xl'], // Extra space for tab bar or bottom sheet
   },
   columnWrapper: {
     justifyContent: 'space-between',
@@ -104,8 +104,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: Spacing.2xl,
-    marginTop: Spacing.4xl,
+    padding: Spacing['2xl'],
+    marginTop: Spacing['4xl'],
   },
   footerLoader: {
     paddingVertical: Spacing.xl,

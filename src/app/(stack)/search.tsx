@@ -2,26 +2,25 @@
 // Search Screen
 // ============================================================
 
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TextInput } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { StyleSheet, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ThemedView } from '@/components/ui/ThemedView';
-import { Text } from '@/components/ui/Text';
-import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { ProductGrid } from '@/components/home/ProductGrid';
-import { Badge } from '@/components/ui/Badge';
+import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
+import { Text } from '@/components/ui/Text';
+import { ThemedView } from '@/components/ui/ThemedView';
 
-import { useProducts } from '@/hooks/useProducts';
 import { useCategories } from '@/hooks/useCategories';
-import { useFilterStore } from '@/stores/filterStore';
+import { useProducts } from '@/hooks/useProducts';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useFilterStore } from '@/stores/filterStore';
 
 import { HE } from '@/constants/hebrew';
-import { Spacing, BorderRadius, Typography } from '@/constants/theme';
+import { BorderRadius, Spacing, Typography } from '@/constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 export default function SearchScreen() {
   const insets = useSafeAreaInsets();
@@ -187,6 +186,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: Spacing.2xl,
+    padding: Spacing['2xl'],
   },
 });

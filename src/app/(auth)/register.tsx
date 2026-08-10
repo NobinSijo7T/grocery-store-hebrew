@@ -2,24 +2,24 @@
 // Register Screen
 // ============================================================
 
-import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
 import { router } from 'expo-router';
+import { useState } from 'react';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ThemedView } from '@/components/ui/ThemedView';
-import { Text } from '@/components/ui/Text';
+import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
+import { Text } from '@/components/ui/Text';
+import { ThemedView } from '@/components/ui/ThemedView';
 
-import { useThemeColor } from '@/hooks/useThemeColor';
-import { useAuth } from '@/hooks/useAuth';
 import { HE } from '@/constants/hebrew';
 import { Spacing } from '@/constants/theme';
+import { useAuth } from '@/hooks/useAuth';
+import { useThemeColor } from '@/hooks/useThemeColor';
 import { MaterialIcons } from '@expo/vector-icons';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Image } from 'expo-image';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function RegisterScreen() {
   const insets = useSafeAreaInsets();
@@ -147,18 +147,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scrollContent: {
-    padding: Spacing.2xl,
+    padding: Spacing['2xl'],
   },
   title: {
     marginBottom: Spacing.sm,
     textAlign: 'right',
   },
   subtitle: {
-    marginBottom: Spacing.2xl,
+    marginBottom: Spacing['2xl'],
     textAlign: 'right',
   },
   form: {
-    marginBottom: Spacing.2xl,
+    marginBottom: Spacing['2xl'],
   },
   footer: {
     flexDirection: 'row-reverse',

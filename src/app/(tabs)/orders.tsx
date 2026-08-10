@@ -2,25 +2,24 @@
 // Orders History Screen
 // ============================================================
 
-import React from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ThemedView } from '@/components/ui/ThemedView';
-import { Text } from '@/components/ui/Text';
 import { Badge } from '@/components/ui/Badge';
-import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Text } from '@/components/ui/Text';
+import { ThemedView } from '@/components/ui/ThemedView';
 
+import { HE } from '@/constants/hebrew';
+import { Spacing } from '@/constants/theme';
 import { useOrders } from '@/hooks/useOrders';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { HE } from '@/constants/hebrew';
-import { Spacing, BorderRadius } from '@/constants/theme';
-import { formatPrice, formatDateTime, formatOrderNumber } from '@/utils/format';
+import { useAuthStore } from '@/stores/authStore';
+import { formatDateTime, formatOrderNumber, formatPrice } from '@/utils/format';
 import { MaterialIcons } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
-import { useAuthStore } from '@/stores/authStore';
 
 export default function OrdersScreen() {
   const insets = useSafeAreaInsets();
@@ -173,7 +172,7 @@ const styles = StyleSheet.create({
   },
   emptyContent: {
     alignItems: 'center',
-    padding: Spacing.2xl,
+    padding: Spacing['2xl'],
   },
   emptyIconBg: {
     width: 120,
@@ -188,6 +187,6 @@ const styles = StyleSheet.create({
   },
   emptySubtitle: {
     textAlign: 'center',
-    marginBottom: Spacing.2xl,
+    marginBottom: Spacing['2xl'],
   },
 });

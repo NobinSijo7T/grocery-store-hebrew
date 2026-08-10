@@ -2,21 +2,20 @@
 // Cart Screen
 // ============================================================
 
-import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ThemedView } from '@/components/ui/ThemedView';
-import { Text } from '@/components/ui/Text';
-import { Button } from '@/components/ui/Button';
 import { CartItemCard } from '@/components/cart/CartItemCard';
 import { CartSummary } from '@/components/cart/CartSummary';
+import { Button } from '@/components/ui/Button';
+import { Text } from '@/components/ui/Text';
+import { ThemedView } from '@/components/ui/ThemedView';
 import { useThemeColor } from '@/hooks/useThemeColor';
 
-import { useCartStore } from '@/stores/cartStore';
 import { HE } from '@/constants/hebrew';
 import { Spacing } from '@/constants/theme';
+import { useCartStore } from '@/stores/cartStore';
 import { MaterialIcons } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
@@ -148,7 +147,7 @@ const styles = StyleSheet.create({
   },
   emptyContent: {
     alignItems: 'center',
-    padding: Spacing.2xl,
+    padding: Spacing['2xl'],
   },
   emptyIconBg: {
     width: 120,
@@ -163,7 +162,7 @@ const styles = StyleSheet.create({
   },
   emptySubtitle: {
     textAlign: 'center',
-    marginBottom: Spacing.2xl,
+    marginBottom: Spacing['2xl'],
   },
   startShoppingBtn: {
     minWidth: 200,

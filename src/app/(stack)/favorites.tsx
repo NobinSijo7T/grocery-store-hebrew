@@ -2,16 +2,15 @@
 // Favorites Screen
 // ============================================================
 
-import React from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ThemedView } from '@/components/ui/ThemedView';
-import { Text } from '@/components/ui/Text';
-import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { ProductGrid } from '@/components/home/ProductGrid';
+import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { Button } from '@/components/ui/Button';
+import { Text } from '@/components/ui/Text';
+import { ThemedView } from '@/components/ui/ThemedView';
 
 import { useFavorites } from '@/hooks/useFavorites';
 import { useThemeColor } from '@/hooks/useThemeColor';
@@ -109,7 +108,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: Spacing.2xl,
+    padding: Spacing['2xl'],
   },
   emptyIconBg: {
     width: 120,
@@ -124,6 +123,6 @@ const styles = StyleSheet.create({
   },
   emptySubtitle: {
     textAlign: 'center',
-    marginBottom: Spacing.2xl,
+    marginBottom: Spacing['2xl'],
   },
 });
