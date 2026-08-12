@@ -7,7 +7,7 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import type { Banner } from '@/types/models';
 import { Image } from 'expo-image';
 import { Dimensions, StyleSheet, View } from 'react-native';
-import Carousel from 'react-native-reanimated-carousel';
+import { Carousel } from 'react-native-reanimated-carousel';
 import { AnimatedPressable } from '../ui/AnimatedPressable';
 import { Text } from '../ui/Text';
 
@@ -27,17 +27,16 @@ export function HeroBanner({ banners, onPressBanner }: HeroBannerProps) {
     <View style={styles.container}>
       <Carousel
         loop
-        width={PAGE_WIDTH}
-        height={180}
-        autoPlay={true}
-        autoPlayInterval={4000}
+        style={{ width: PAGE_WIDTH, height: 180 }}
+        itemSize={PAGE_WIDTH}
+        autoplay={true}
+        autoplayInterval={4000}
         data={banners}
-        scrollAnimationDuration={1000}
-        // Basic scaling animation
-        mode="parallax"
-        modeConfig={{
-          parallaxScrollingScale: 0.9,
-          parallaxScrollingOffset: 50,
+        animation={{ type: 'timing', duration: 1000 }}
+        layout={{
+          type: 'parallax',
+          scale: 0.9,
+          offset: 50,
         }}
         renderItem={({ item, index }) => (
           <AnimatedPressable
@@ -84,10 +83,18 @@ const styles = StyleSheet.create({
     marginHorizontal: Spacing.sm,
   },
   image: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.3)', // Darken image so text pops
   },
   content: {
