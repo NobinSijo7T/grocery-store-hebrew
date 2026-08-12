@@ -10,6 +10,7 @@ export type UserRole = 'customer' | 'admin' | 'staff';
 export interface Category {
   id: string;
   name_he: string;
+  name_en?: string | null;
   slug: string;
   icon: string | null;
   sort_order: number;
@@ -21,8 +22,10 @@ export interface Product {
   id: string;
   category_id: string;
   name_he: string;
+  name_en?: string | null;
   slug: string;
   description_he: string | null;
+  description_en?: string | null;
   price: number;
   unit: string;
   discount_price: number | null;

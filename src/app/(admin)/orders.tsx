@@ -40,9 +40,12 @@ export default function AdminOrders() {
   useEffect(() => {
     fetchOrders();
 
-    // Subscribe to all order changes for admin
+    // Use a unique channel name each mount to avoid Supabase throwing
+    // "cannot add postgres_changes callbacks after subscribe()" on remount
+    // (triggered by React Strict Mode / Fast Refresh).
+    const channelName = `admin-orders-${Date.now()}`;
     const channel = supabase
-      .channel('admin-orders')
+      .channel(channelName)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, fetchOrders)
       .subscribe();
 

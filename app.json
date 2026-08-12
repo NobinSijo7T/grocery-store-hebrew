@@ -8,9 +8,11 @@
     "scheme": "grocerystorehebrew",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/images/app-icons/appstore.png"
+      "icon": "./assets/images/app-icons/appstore.png",
+      "bundleIdentifier": "com.meshakkirshner.grocery"
     },
     "android": {
+      "package": "com.meshakkirshner.grocery",
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
         "foregroundImage": "./assets/images/app-icons/playstore.png"
@@ -29,6 +31,12 @@
           "backgroundColor": "#208AEF",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos to upload product images."
         }
       ]
     ],

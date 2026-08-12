@@ -39,6 +39,7 @@ export function ProductGrid({
     return (
       <FlatList
         data={[]}
+        renderItem={() => null}
         ListHeaderComponent={header}
         contentContainerStyle={[styles.listContent, { paddingBottom: bottomPadding }]}
         showsVerticalScrollIndicator={false}

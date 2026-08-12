@@ -3,18 +3,28 @@
 // ============================================================
 
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, FlatList, ActivityIndicator, Switch, TextInput } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+  Switch,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
 import { ThemedView } from '@/components/ui/ThemedView';
 import { Text } from '@/components/ui/Text';
 import { Card } from '@/components/ui/Card';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { Spacing, BorderRadius } from '@/constants/theme';
+import { Spacing, BorderRadius, Shadows } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
 import { formatPrice } from '@/utils/format';
 import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTranslation } from '@/hooks/useTranslation';
+import { ProductFormModal } from '@/components/product/ProductFormModal';
+import type { Product } from '@/types/models';
 
 export default function AdminProducts() {
   const theme = useThemeColor();
@@ -23,6 +33,10 @@ export default function AdminProducts() {
   const [search, setSearch] = useState('');
   const { language } = useTranslation();
   const isRTL = language === 'he';
+
+  // Modal state
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -44,7 +58,6 @@ export default function AdminProducts() {
   };
 
   useEffect(() => {
-    // Debounce manual search effect or just use a button. We'll do basic fetch on mount and search change.
     const timer = setTimeout(() => {
       fetchProducts();
     }, 500);
@@ -52,58 +65,95 @@ export default function AdminProducts() {
   }, [search]);
 
   const toggleProductActive = async (productId: string, currentStatus: boolean) => {
-    // Optimistic UI update
     setProducts(products.map(p => p.id === productId ? { ...p, is_active: !currentStatus } : p));
-    
-    // DB Update
     await supabase.from('products').update({ is_active: !currentStatus }).eq('id', productId);
   };
 
   const toggleProductStock = async (productId: string, currentStock: number) => {
-    // Simple toggle between 0 (Out of stock) and 100 (In stock) for demo purposes
     const newStock = currentStock > 0 ? 0 : 100;
-    
-    // Optimistic UI update
     setProducts(products.map(p => p.id === productId ? { ...p, stock_qty: newStock } : p));
-    
-    // DB Update
     await supabase.from('products').update({ stock_qty: newStock }).eq('id', productId);
+  };
+
+  const openAdd = () => {
+    setEditingProduct(null);
+    setModalVisible(true);
+  };
+
+  const openEdit = (product: Product) => {
+    setEditingProduct(product);
+    setModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setModalVisible(false);
+    setEditingProduct(null);
+  };
+
+  const handleSaved = () => {
+    fetchProducts();
   };
 
   const renderItem = ({ item, index }: any) => (
     <Animated.View entering={FadeIn.delay(index * 30)}>
       <Card style={styles.card} padding={false}>
         <View style={[styles.row, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-           <Image source={item.image_url} style={[styles.image, isRTL ? { marginLeft: Spacing.md } : { marginRight: Spacing.md }]} contentFit="cover" />
-           <View style={[styles.details, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
-              <Text variant="md" weight="bold">{language === 'he' ? item.name_he : (item.name_en || item.name_he)}</Text>
-              <Text variant="sm" color={theme.textSecondary}>{language === 'he' ? item.category?.name_he : (item.category?.name_en || item.category?.name_he)} • {item.unit}</Text>
-              <Text variant="lg" weight="bold" color={theme.primary} style={{ marginTop: Spacing.xs }}>
+          <Image
+            source={item.image_url}
+            style={[styles.image, isRTL ? { marginLeft: Spacing.md } : { marginRight: Spacing.md }]}
+            contentFit="cover"
+          />
+          <View style={[styles.details, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
+            <Text variant="md" weight="bold">
+              {language === 'he' ? item.name_he : (item.name_en || item.name_he)}
+            </Text>
+            <Text variant="sm" color={theme.textSecondary}>
+              {language === 'he' ? item.category?.name_he : (item.category?.name_en || item.category?.name_he)} • {item.unit}
+            </Text>
+            <View style={styles.priceRow}>
+              {item.discount_price != null && (
+                <Text variant="sm" color={theme.textTertiary} style={styles.oldPrice}>
+                  {formatPrice(item.price)}
+                </Text>
+              )}
+              <Text variant="lg" weight="bold" color={item.discount_price != null ? theme.accent : theme.primary} style={{ marginTop: Spacing.xs }}>
                 {formatPrice(item.discount_price ?? item.price)}
               </Text>
-           </View>
+            </View>
+          </View>
+
+          {/* Edit button */}
+          <TouchableOpacity
+            style={[styles.editBtn, { backgroundColor: theme.primaryLight }]}
+            onPress={() => openEdit(item as Product)}
+            hitSlop={8}
+          >
+            <MaterialIcons name="edit" size={18} color={theme.primary} />
+          </TouchableOpacity>
         </View>
-        
+
         <View style={[styles.actions, { borderTopColor: theme.borderLight, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-           <View style={[styles.actionToggle, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-              <Text variant="sm">{language === 'he' ? 'פעיל' : 'Active'}</Text>
-              <Switch 
-                value={item.is_active} 
-                onValueChange={() => toggleProductActive(item.id, item.is_active)}
-                trackColor={{ true: theme.primary }}
-              />
-           </View>
-           
-           <View style={[styles.actionToggle, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-              <Text variant="sm" color={item.stock_qty > 0 ? theme.success : theme.error}>
-                {item.stock_qty > 0 ? (language === 'he' ? 'במלאי' : 'In Stock') : (language === 'he' ? 'חסר במלאי' : 'Out of Stock')}
-              </Text>
-              <Switch 
-                value={item.stock_qty > 0} 
-                onValueChange={() => toggleProductStock(item.id, item.stock_qty)}
-                trackColor={{ true: theme.success, false: theme.error }}
-              />
-           </View>
+          <View style={[styles.actionToggle, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+            <Text variant="sm">{language === 'he' ? 'פעיל' : 'Active'}</Text>
+            <Switch
+              value={item.is_active}
+              onValueChange={() => toggleProductActive(item.id, item.is_active)}
+              trackColor={{ true: theme.primary }}
+            />
+          </View>
+
+          <View style={[styles.actionToggle, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+            <Text variant="sm" color={item.stock_qty > 0 ? theme.success : theme.error}>
+              {item.stock_qty > 0
+                ? (language === 'he' ? 'במלאי' : 'In Stock')
+                : (language === 'he' ? 'חסר במלאי' : 'Out of Stock')}
+            </Text>
+            <Switch
+              value={item.stock_qty > 0}
+              onValueChange={() => toggleProductStock(item.id, item.stock_qty)}
+              trackColor={{ true: theme.success, false: theme.error }}
+            />
+          </View>
         </View>
       </Card>
     </Animated.View>
@@ -111,18 +161,31 @@ export default function AdminProducts() {
 
   return (
     <ThemedView style={styles.container}>
+      {/* Search Bar */}
       <View style={[styles.searchContainer, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
-         <View style={[styles.searchInputContainer, { backgroundColor: theme.surfaceElevated, borderColor: theme.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-           <MaterialIcons name="search" size={20} color={theme.textTertiary} />
-           <TextInput
-             style={[styles.searchInput, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}
-             placeholder={language === 'he' ? "חיפוש מוצרים..." : "Search products..."}
-             placeholderTextColor={theme.textTertiary}
-             value={search}
-             onChangeText={setSearch}
-           />
-         </View>
+        <View style={[
+          styles.searchInputContainer,
+          { backgroundColor: theme.surfaceElevated, borderColor: theme.border, flexDirection: isRTL ? 'row-reverse' : 'row' },
+        ]}>
+          <MaterialIcons name="search" size={20} color={theme.textTertiary} />
+          <TextInput
+            style={[styles.searchInput, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}
+            placeholder={language === 'he' ? 'חיפוש מוצרים...' : 'Search products...'}
+            placeholderTextColor={theme.textTertiary}
+            value={search}
+            onChangeText={setSearch}
+          />
+        </View>
       </View>
+
+      {/* Product count */}
+      {!loading && (
+        <View style={[styles.countBar, { backgroundColor: theme.background }]}>
+          <Text variant="sm" color={theme.textTertiary}>
+            {language === 'he' ? `${products.length} מוצרים` : `${products.length} products`}
+          </Text>
+        </View>
+      )}
 
       {loading && products.length === 0 ? (
         <View style={styles.center}>
@@ -136,21 +199,44 @@ export default function AdminProducts() {
           renderItem={renderItem}
           onRefresh={fetchProducts}
           refreshing={loading}
+          ListEmptyComponent={
+            <View style={styles.center}>
+              <MaterialIcons name="inventory-2" size={48} color={theme.textTertiary} />
+              <Text variant="md" color={theme.textTertiary} style={{ marginTop: Spacing.md }}>
+                {language === 'he' ? 'לא נמצאו מוצרים' : 'No products found'}
+              </Text>
+            </View>
+          }
         />
       )}
+
+      {/* FAB — Add Product */}
+      <Animated.View entering={FadeIn.delay(200)} style={[styles.fab, { backgroundColor: theme.primary }, Shadows.xl]}>
+        <TouchableOpacity onPress={openAdd} style={styles.fabInner} activeOpacity={0.85}>
+          <MaterialIcons name="add" size={28} color="#fff" />
+        </TouchableOpacity>
+      </Animated.View>
+
+      {/* Product Form Modal */}
+      <ProductFormModal
+        visible={modalVisible}
+        product={editingProduct}
+        onClose={handleModalClose}
+        onSaved={handleSaved}
+      />
     </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 60 },
   searchContainer: {
     padding: Spacing.lg,
     borderBottomWidth: 1,
   },
   searchInputContainer: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     alignItems: 'center',
     height: 48,
     borderRadius: BorderRadius.md,
@@ -162,19 +248,54 @@ const styles = StyleSheet.create({
     height: '100%',
     marginHorizontal: Spacing.sm,
   },
-  list: { padding: Spacing.lg, paddingBottom: 100 },
+  countBar: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
+  },
+  list: { padding: Spacing.lg, paddingBottom: 120 },
   card: { marginBottom: Spacing.md },
-  row: { padding: Spacing.md },
-  image: { width: 60, height: 60, borderRadius: BorderRadius.sm },
+  row: {
+    padding: Spacing.md,
+    alignItems: 'center',
+  },
+  image: { width: 64, height: 64, borderRadius: BorderRadius.sm },
   details: { flex: 1 },
-  actions: { 
-    justifyContent: 'space-between', 
-    padding: Spacing.md, 
+  priceRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  oldPrice: {
+    textDecorationLine: 'line-through',
+    marginTop: Spacing.xs,
+  },
+  editBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: BorderRadius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginStart: Spacing.sm,
+  },
+  actions: {
+    justifyContent: 'space-between',
+    padding: Spacing.md,
     borderTopWidth: 1,
-    backgroundColor: 'rgba(0,0,0,0.02)'
+    backgroundColor: 'rgba(0,0,0,0.02)',
   },
   actionToggle: {
     alignItems: 'center',
     gap: Spacing.sm,
-  }
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    overflow: 'hidden',
+  },
+  fabInner: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
