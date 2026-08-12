@@ -4,7 +4,7 @@
 
 import { router } from 'expo-router';
 import React from 'react';
-import { Alert, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
@@ -75,18 +75,21 @@ export default function AccountScreen() {
     );
   };
 
+  const isRTL = language === 'he';
+  const flexDirection = isRTL ? 'row-reverse' : 'row';
+
   const renderMenuItem = (icon: any, title: string, onPress: () => void, rightElement?: React.ReactNode, index: number = 0) => (
     <Animated.View entering={FadeInUp.delay(index * 50)}>
       <AnimatedPressable
         onPress={onPress}
-        style={[styles.menuItem, { borderBottomColor: theme.borderLight }]}
+        style={[styles.menuItem, { borderBottomColor: theme.borderLight, flexDirection }]}
       >
-        <View style={styles.menuItemLeft}>
-           <MaterialIcons name={icon} size={24} color={theme.textSecondary} style={{ marginLeft: Spacing.md }} />
+        <View style={[styles.menuItemLeft, { flexDirection }]}>
+           <MaterialIcons name={icon} size={24} color={theme.textSecondary} style={isRTL ? { marginLeft: Spacing.md } : { marginRight: Spacing.md }} />
            <Text variant="md" weight="medium">{title}</Text>
         </View>
         <View style={styles.menuItemRight}>
-          {rightElement || <MaterialIcons name="chevron-left" size={24} color={theme.textTertiary} />}
+          {rightElement || <MaterialIcons name={isRTL ? "chevron-left" : "chevron-right"} size={24} color={theme.textTertiary} />}
         </View>
       </AnimatedPressable>
     </Animated.View>
@@ -136,13 +139,13 @@ export default function AccountScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
         {/* Profile Header */}
-        <Animated.View entering={FadeInUp} style={[styles.profileCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
-          <View style={[styles.avatar, { backgroundColor: theme.primaryLight }]}>
+        <Animated.View entering={FadeInUp} style={[styles.profileCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border, flexDirection }]}>
+          <View style={[styles.avatar, { backgroundColor: theme.primaryLight, ...(isRTL ? { marginLeft: Spacing.lg } : { marginRight: Spacing.lg }) }]}>
             <Text variant="2xl" weight="bold" color={theme.primaryDark}>
               {customer?.full_name?.charAt(0) || (language === 'he' ? 'מ' : 'U')}
             </Text>
           </View>
-          <View style={styles.profileInfo}>
+          <View style={[styles.profileInfo, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
             <Text variant="xl" weight="bold">{customer?.full_name || (language === 'he' ? 'משתמש' : 'User')}</Text>
             <Text variant="md" color={theme.textSecondary}>{session.user.email}</Text>
             {customer?.phone && (
@@ -209,10 +212,9 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: Spacing.lg,
-    paddingBottom: 40,
+    paddingBottom: Platform.OS === 'ios' ? 120 : 112, // Tab bar height + bottom margin + spacing
   },
   profileCard: {
-    flexDirection: 'row-reverse', // RTL
     alignItems: 'center',
     padding: Spacing.lg,
     borderRadius: BorderRadius.lg,
@@ -225,11 +227,9 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: Spacing.lg,
   },
   profileInfo: {
     flex: 1,
-    alignItems: 'flex-start', // Will be right-aligned due to row-reverse
   },
   section: {
     borderRadius: BorderRadius.lg,
@@ -238,14 +238,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   menuItem: {
-    flexDirection: 'row-reverse', // RTL
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: Spacing.lg,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   menuItemLeft: {
-    flexDirection: 'row-reverse',
     alignItems: 'center',
   },
   menuItemRight: {

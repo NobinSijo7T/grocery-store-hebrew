@@ -2,24 +2,23 @@
 // Order Detail Screen
 // ============================================================
 
-import React from 'react';
-import { View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ThemedView } from '@/components/ui/ThemedView';
-import { Text } from '@/components/ui/Text';
-import { Button } from '@/components/ui/Button';
-import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { OrderTimeline } from '@/components/order/OrderTimeline';
+import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Text } from '@/components/ui/Text';
+import { ThemedView } from '@/components/ui/ThemedView';
 
 import { useOrderDetails } from '@/hooks/useOrders';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTranslation } from '@/hooks/useTranslation';
 
 import { Spacing } from '@/constants/theme';
-import { formatPrice, formatDateTime, formatOrderNumber } from '@/utils/format';
+import { formatDateTime, formatOrderNumber, formatPrice } from '@/utils/format';
 import { MaterialIcons } from '@expo/vector-icons';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
@@ -55,7 +54,7 @@ export default function OrderDetailScreen() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + Spacing.sm, borderBottomColor: theme.border }]}>
         <AnimatedPressable onPress={() => router.back()} style={styles.backButton}>
-           <MaterialIcons name="arrow-forward" size={24} color={theme.text} />
+           <MaterialIcons name="arrow-back" size={24} color={theme.text} />
         </AnimatedPressable>
         <Text variant="xl" weight="bold">{t.order.details}</Text>
         <View style={styles.headerSpacer} />

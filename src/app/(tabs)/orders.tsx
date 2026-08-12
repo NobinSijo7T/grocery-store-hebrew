@@ -3,7 +3,7 @@
 // ============================================================
 
 import { router } from 'expo-router';
-import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Badge } from '@/components/ui/Badge';
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: Spacing.lg,
-    paddingBottom: 100,
+    paddingBottom: Platform.OS === 'ios' ? 120 : 112, // Tab bar height + bottom margin + spacing
   },
   orderCard: {
     marginBottom: Spacing.md,

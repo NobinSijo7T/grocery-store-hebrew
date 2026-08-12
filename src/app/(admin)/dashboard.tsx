@@ -13,6 +13,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
 import { formatPrice } from '@/utils/format';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function AdminDashboard() {
   const theme = useThemeColor();
@@ -23,6 +24,8 @@ export default function AdminDashboard() {
     totalProducts: 0,
   });
   const [loading, setLoading] = useState(true);
+  const { language } = useTranslation();
+  const isRTL = language === 'he';
 
   const fetchStats = async () => {
     setLoading(true);
@@ -85,34 +88,34 @@ export default function AdminDashboard() {
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchStats} />}
       >
-        <Text variant="xl" weight="bold" style={styles.sectionTitle}>
-          סקירה כללית
+        <Text variant="xl" weight="bold" style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>
+          {language === 'he' ? 'סקירה כללית' : 'Overview'}
         </Text>
         
-        <View style={styles.grid}>
+        <View style={[styles.grid, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
           <StatCard 
-            title="הכנסות (סה״כ)" 
+            title={language === 'he' ? 'הכנסות (סה״כ)' : 'Total Revenue'}
             value={formatPrice(stats.totalRevenue)} 
             icon="payments" 
             color={theme.success} 
             delay={100} 
           />
           <StatCard 
-            title="הזמנות ממתינות" 
+            title={language === 'he' ? 'הזמנות ממתינות' : 'Pending Orders'}
             value={stats.pendingOrders} 
             icon="pending-actions" 
             color={theme.warning} 
             delay={200} 
           />
           <StatCard 
-            title="סה״כ הזמנות" 
+            title={language === 'he' ? 'סה״כ הזמנות' : 'Total Orders'}
             value={stats.totalOrders} 
             icon="receipt-long" 
             color={theme.primary} 
             delay={300} 
           />
           <StatCard 
-            title="מוצרים פעילים" 
+            title={language === 'he' ? 'מוצרים פעילים' : 'Active Products'}
             value={stats.totalProducts} 
             icon="inventory-2" 
             color={theme.accent} 
@@ -134,10 +137,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     marginBottom: Spacing.md,
-    textAlign: 'right', // RTL
   },
   grid: {
-    flexDirection: 'row-reverse', // RTL
     flexWrap: 'wrap',
     gap: Spacing.md,
   },

@@ -15,11 +15,14 @@ import { supabase } from '@/lib/supabase';
 import { formatDateTime, formatPrice, formatOrderNumber } from '@/utils/format';
 import { HE } from '@/constants/hebrew';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function AdminOrders() {
   const theme = useThemeColor();
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { language } = useTranslation();
+  const isRTL = language === 'he';
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -65,21 +68,36 @@ export default function AdminOrders() {
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    if (language === 'he') {
+      return HE.order.statuses[status as keyof typeof HE.order.statuses] || status;
+    }
+    const enLabels: any = {
+      pending: 'Pending',
+      confirmed: 'Confirmed',
+      packing: 'Packing',
+      out_for_delivery: 'Out for Delivery',
+      delivered: 'Delivered',
+      cancelled: 'Cancelled',
+    };
+    return enLabels[status] || status;
+  };
+
   const renderItem = ({ item, index }: any) => (
     <Animated.View entering={FadeIn.delay(index * 50)}>
       <Card style={styles.card}>
-        <View style={styles.cardHeader}>
+        <View style={[styles.cardHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
            <View>
              <Text variant="lg" weight="bold">{formatOrderNumber(item.id)}</Text>
              <Text variant="sm" color={theme.textSecondary}>{formatDateTime(item.created_at)}</Text>
            </View>
-           <Badge label={HE.order.statuses[item.order_status as keyof typeof HE.order.statuses] || item.order_status} variant={getStatusColor(item.order_status)} />
+           <Badge label={getStatusLabel(item.order_status)} variant={getStatusColor(item.order_status)} />
         </View>
         
         <View style={[styles.divider, { backgroundColor: theme.border }]} />
         
-        <View style={styles.cardBody}>
-           <Text variant="md" weight="medium">{item.customer?.full_name || 'לקוח לא ידוע'}</Text>
+        <View style={[styles.cardBody, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
+           <Text variant="md" weight="medium">{item.customer?.full_name || (language === 'he' ? 'לקוח לא ידוע' : 'Unknown Customer')}</Text>
            <Text variant="md" color={theme.textSecondary}>{item.customer?.phone}</Text>
            <Text variant="lg" weight="bold" color={theme.primary} style={{ marginTop: Spacing.sm }}>
              {formatPrice(item.grand_total)}
@@ -87,18 +105,18 @@ export default function AdminOrders() {
         </View>
 
         {/* Action Buttons for quick status changes */}
-        <View style={[styles.actions, { borderTopColor: theme.borderLight }]}>
+        <View style={[styles.actions, { borderTopColor: theme.borderLight, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
            {item.order_status === 'pending' && (
-             <Button title="אשר הזמנה" size="sm" onPress={() => updateOrderStatus(item.id, 'confirmed')} style={styles.actionBtn} />
+             <Button title={language === 'he' ? "אשר הזמנה" : "Confirm"} size="sm" onPress={() => updateOrderStatus(item.id, 'confirmed')} style={styles.actionBtn} />
            )}
            {item.order_status === 'confirmed' && (
-             <Button title="התחל אריזה" size="sm" onPress={() => updateOrderStatus(item.id, 'packing')} style={styles.actionBtn} />
+             <Button title={language === 'he' ? "התחל אריזה" : "Pack"} size="sm" onPress={() => updateOrderStatus(item.id, 'packing')} style={styles.actionBtn} />
            )}
            {item.order_status === 'packing' && (
-             <Button title="הוצא למשלוח" size="sm" onPress={() => updateOrderStatus(item.id, 'out_for_delivery')} style={styles.actionBtn} />
+             <Button title={language === 'he' ? "הוצא למשלוח" : "Deliver"} size="sm" onPress={() => updateOrderStatus(item.id, 'out_for_delivery')} style={styles.actionBtn} />
            )}
            {item.order_status === 'out_for_delivery' && (
-             <Button title="סמן כנמסר" size="sm" variant="secondary" onPress={() => updateOrderStatus(item.id, 'delivered')} style={styles.actionBtn} />
+             <Button title={language === 'he' ? "סמן כנמסר" : "Done"} size="sm" variant="secondary" onPress={() => updateOrderStatus(item.id, 'delivered')} style={styles.actionBtn} />
            )}
         </View>
       </Card>
@@ -130,9 +148,9 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   list: { padding: Spacing.lg },
   card: { marginBottom: Spacing.md },
-  cardHeader: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'flex-start' },
+  cardHeader: { justifyContent: 'space-between', alignItems: 'flex-start' },
   divider: { height: 1, marginVertical: Spacing.md },
-  cardBody: { alignItems: 'flex-end' },
-  actions: { flexDirection: 'row-reverse', marginTop: Spacing.md, paddingTop: Spacing.md, borderTopWidth: 1, gap: Spacing.sm },
+  cardBody: {},
+  actions: { marginTop: Spacing.md, paddingTop: Spacing.md, borderTopWidth: 1, gap: Spacing.sm },
   actionBtn: { flex: 1 },
 });

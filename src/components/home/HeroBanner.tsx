@@ -18,6 +18,11 @@ interface HeroBannerProps {
 
 const { width: PAGE_WIDTH } = Dimensions.get('window');
 
+const CarouselComponent: any = 
+  typeof Carousel === 'function' || (Carousel && typeof (Carousel as any).$$typeof === 'symbol')
+    ? Carousel
+    : (Carousel as any)?.Carousel || (Carousel as any)?.default || Carousel;
+
 export function HeroBanner({ banners, onPressBanner }: HeroBannerProps) {
   const theme = useThemeColor();
 
@@ -25,7 +30,7 @@ export function HeroBanner({ banners, onPressBanner }: HeroBannerProps) {
 
   return (
     <View style={styles.container}>
-      <Carousel
+      <CarouselComponent
         loop
         style={{ width: PAGE_WIDTH, height: 180 }}
         itemSize={PAGE_WIDTH}
@@ -38,7 +43,7 @@ export function HeroBanner({ banners, onPressBanner }: HeroBannerProps) {
           scale: 0.9,
           offset: 50,
         }}
-        renderItem={({ item, index }) => (
+        renderItem={({ item }: { item: Banner }) => (
           <AnimatedPressable
             key={item.id}
             style={styles.bannerContainer}

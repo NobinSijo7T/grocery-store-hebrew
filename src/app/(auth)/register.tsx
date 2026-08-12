@@ -56,7 +56,7 @@ export default function RegisterScreen() {
         onPress={() => router.back()} 
         style={[styles.backButton, { top: insets.top + Spacing.sm }]}
       >
-        <MaterialIcons name="arrow-forward" size={28} color={theme.text} />
+        <MaterialIcons name="arrow-back" size={28} color={theme.text} />
       </AnimatedPressable>
 
       <KeyboardAvoidingView 
@@ -66,7 +66,7 @@ export default function RegisterScreen() {
         <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 80 }]}>
           
           <Animated.View entering={FadeInDown.springify()}>
-            <Image source={require('../../../assets/images/logo.svg')} style={{ width: 80, height: 80, alignSelf: 'center', marginBottom: Spacing.xl }} contentFit="contain" />
+            <Image source={require('../../../assets/images/logo.svg')} style={{ width: 140, height: 140, alignSelf: 'center', marginBottom: Spacing.xl }} contentFit="contain" />
             <Text variant="4xl" weight="bold" style={styles.title}>
               {HE.auth.welcome}
             </Text>

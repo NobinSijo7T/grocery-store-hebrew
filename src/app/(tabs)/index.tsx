@@ -2,35 +2,35 @@
 // Home Screen
 // ============================================================
 
-import React, { useMemo, useRef } from 'react';
-import { Alert, StyleSheet, Switch, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Image } from 'expo-image';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useMemo, useRef } from 'react';
+import { Alert, StyleSheet, Switch, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ThemedView } from '@/components/ui/ThemedView';
-import { Text } from '@/components/ui/Text';
-import { HeroBanner } from '@/components/home/HeroBanner';
 import { CategoryChips } from '@/components/home/CategoryChips';
+import { HeroBanner } from '@/components/home/HeroBanner';
 import { ProductGrid } from '@/components/home/ProductGrid';
 import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { BottomSheet } from '@/components/ui/BottomSheet';
+import { Text } from '@/components/ui/Text';
+import { ThemedView } from '@/components/ui/ThemedView';
 
-import { useProducts } from '@/hooks/useProducts';
-import { useCategories } from '@/hooks/useCategories';
 import { useBanners } from '@/hooks/useBanners';
+import { useCategories } from '@/hooks/useCategories';
+import { useProducts } from '@/hooks/useProducts';
+import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuthStore } from '@/stores/authStore';
 import { useFilterStore } from '@/stores/filterStore';
-import { useThemeColor } from '@/hooks/useThemeColor';
 import { useThemeStore } from '@/stores/themeStore';
 
 import { BorderRadius, Shadows, Spacing } from '@/constants/theme';
-import { MaterialIcons } from '@expo/vector-icons';
-import type { Banner } from '@/types/models';
 import type { Language } from '@/stores/languageStore';
+import type { Banner } from '@/types/models';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -162,16 +162,8 @@ export default function HomeScreen() {
       
       {/* Top Bar Area */}
       <View style={[styles.topBar, { paddingTop: Math.max(insets.top, Spacing.md) }]}>
-        <View style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: Spacing.sm }}>
-          <Image source={require('../../../assets/images/logo.svg')} style={{ width: 40, height: 40 }} contentFit="contain" />
-          <View>
-            <Text variant="sm" color={theme.textSecondary} style={{ textAlign: 'right' }}>
-              {t.home.greeting}
-            </Text>
-            <Text variant="lg" weight="bold" style={{ textAlign: 'right' }}>
-              {customer?.full_name || t.appName}
-            </Text>
-          </View>
+        <View style={{ flexDirection: 'row-reverse', alignItems: 'center' }}>
+          <Image source={require('../../../assets/images/logo.svg')} style={{ width: 140, height: 48 }} contentFit="contain" />
         </View>
         <View style={styles.topBarActions}>
           <AnimatedPressable onPress={openSettings}>
@@ -253,7 +245,7 @@ export default function HomeScreen() {
                     : 'Profile, addresses, orders and support'}
                 </Text>
               </View>
-              <MaterialIcons name="chevron-left" size={24} color={theme.textTertiary} />
+              <MaterialIcons name="chevron-right" size={24} color={theme.textTertiary} />
             </AnimatedPressable>
           </View>
         </View>

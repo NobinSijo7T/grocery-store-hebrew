@@ -139,7 +139,7 @@ export default function CheckoutScreen() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + Spacing.sm, borderBottomColor: theme.border }]}>
         <AnimatedPressable onPress={handleBackStep} style={styles.backButton}>
-           <MaterialIcons name="arrow-forward" size={24} color={theme.text} />
+           <MaterialIcons name="arrow-back" size={24} color={theme.text} />
         </AnimatedPressable>
         <Text variant="xl" weight="bold">{HE.checkout.title}</Text>
         <View style={styles.headerSpacer} />

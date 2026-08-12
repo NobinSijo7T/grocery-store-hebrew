@@ -14,12 +14,15 @@ import { formatPrice } from '@/utils/format';
 import { Image } from 'expo-image';
 import { MaterialIcons } from '@expo/vector-icons';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function AdminProducts() {
   const theme = useThemeColor();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const { language } = useTranslation();
+  const isRTL = language === 'he';
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -70,20 +73,20 @@ export default function AdminProducts() {
   const renderItem = ({ item, index }: any) => (
     <Animated.View entering={FadeIn.delay(index * 30)}>
       <Card style={styles.card} padding={false}>
-        <View style={styles.row}>
-           <Image source={item.image_url} style={styles.image} contentFit="cover" />
-           <View style={styles.details}>
-              <Text variant="md" weight="bold">{item.name_he}</Text>
-              <Text variant="sm" color={theme.textSecondary}>{item.category?.name_he} • {item.unit}</Text>
+        <View style={[styles.row, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+           <Image source={item.image_url} style={[styles.image, isRTL ? { marginLeft: Spacing.md } : { marginRight: Spacing.md }]} contentFit="cover" />
+           <View style={[styles.details, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
+              <Text variant="md" weight="bold">{language === 'he' ? item.name_he : (item.name_en || item.name_he)}</Text>
+              <Text variant="sm" color={theme.textSecondary}>{language === 'he' ? item.category?.name_he : (item.category?.name_en || item.category?.name_he)} • {item.unit}</Text>
               <Text variant="lg" weight="bold" color={theme.primary} style={{ marginTop: Spacing.xs }}>
                 {formatPrice(item.discount_price ?? item.price)}
               </Text>
            </View>
         </View>
         
-        <View style={[styles.actions, { borderTopColor: theme.borderLight }]}>
-           <View style={styles.actionToggle}>
-              <Text variant="sm">פעיל</Text>
+        <View style={[styles.actions, { borderTopColor: theme.borderLight, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+           <View style={[styles.actionToggle, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <Text variant="sm">{language === 'he' ? 'פעיל' : 'Active'}</Text>
               <Switch 
                 value={item.is_active} 
                 onValueChange={() => toggleProductActive(item.id, item.is_active)}
@@ -91,9 +94,9 @@ export default function AdminProducts() {
               />
            </View>
            
-           <View style={styles.actionToggle}>
+           <View style={[styles.actionToggle, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
               <Text variant="sm" color={item.stock_qty > 0 ? theme.success : theme.error}>
-                {item.stock_qty > 0 ? 'במלאי' : 'חסר במלאי'}
+                {item.stock_qty > 0 ? (language === 'he' ? 'במלאי' : 'In Stock') : (language === 'he' ? 'חסר במלאי' : 'Out of Stock')}
               </Text>
               <Switch 
                 value={item.stock_qty > 0} 
@@ -109,15 +112,14 @@ export default function AdminProducts() {
   return (
     <ThemedView style={styles.container}>
       <View style={[styles.searchContainer, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
-         <View style={[styles.searchInputContainer, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
+         <View style={[styles.searchInputContainer, { backgroundColor: theme.surfaceElevated, borderColor: theme.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
            <MaterialIcons name="search" size={20} color={theme.textTertiary} />
            <TextInput
-             style={[styles.searchInput, { color: theme.text }]}
-             placeholder="חיפוש מוצרים..."
+             style={[styles.searchInput, { color: theme.text, textAlign: isRTL ? 'right' : 'left' }]}
+             placeholder={language === 'he' ? "חיפוש מוצרים..." : "Search products..."}
              placeholderTextColor={theme.textTertiary}
              value={search}
              onChangeText={setSearch}
-             textAlign="right"
            />
          </View>
       </View>
@@ -162,18 +164,16 @@ const styles = StyleSheet.create({
   },
   list: { padding: Spacing.lg, paddingBottom: 100 },
   card: { marginBottom: Spacing.md },
-  row: { flexDirection: 'row-reverse', padding: Spacing.md },
-  image: { width: 60, height: 60, borderRadius: BorderRadius.sm, marginLeft: Spacing.md },
-  details: { flex: 1, alignItems: 'flex-end' },
+  row: { padding: Spacing.md },
+  image: { width: 60, height: 60, borderRadius: BorderRadius.sm },
+  details: { flex: 1 },
   actions: { 
-    flexDirection: 'row-reverse', 
     justifyContent: 'space-between', 
     padding: Spacing.md, 
     borderTopWidth: 1,
     backgroundColor: 'rgba(0,0,0,0.02)'
   },
   actionToggle: {
-    flexDirection: 'row-reverse',
     alignItems: 'center',
     gap: Spacing.sm,
   }

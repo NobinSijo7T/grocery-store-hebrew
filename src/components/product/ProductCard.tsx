@@ -2,23 +2,21 @@
 // ProductCard Component
 // ============================================================
 
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { BorderRadius, Layout, Spacing } from '@/constants/theme';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useCartStore } from '@/stores/cartStore';
+import type { Product } from '@/types/models';
+import { formatPrice } from '@/utils/format';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
-import { Text } from '../ui/Text';
+import { StyleSheet, View } from 'react-native';
+import { AnimatedPressable } from '../ui/AnimatedPressable';
 import { Badge } from '../ui/Badge';
 import { Card } from '../ui/Card';
-import { AnimatedPressable } from '../ui/AnimatedPressable';
+import { Text } from '../ui/Text';
 import { QuantitySelector } from './QuantitySelector';
-import { useThemeColor } from '@/hooks/useThemeColor';
-import { useCartStore } from '@/stores/cartStore';
-import { BorderRadius, Layout, Spacing } from '@/constants/theme';
-import { formatPrice } from '@/utils/format';
-import { HE } from '@/constants/hebrew';
-import type { Product } from '@/types/models';
-import { MaterialIcons } from '@expo/vector-icons';
-import Animated, { FadeIn, Layout as ReanimatedLayout } from 'react-native-reanimated';
 
 interface ProductCardProps {
   product: Product;
@@ -29,6 +27,7 @@ const blurhash =
 
 export function ProductCard({ product }: ProductCardProps) {
   const theme = useThemeColor();
+  const { t, language } = useTranslation();
   const cartItemQuantity = useCartStore((state) => state.getItemQuantity(product.id));
   const { addItem, incrementItem, decrementItem } = useCartStore();
 
@@ -38,6 +37,14 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const price = product.discount_price ?? product.price;
   const hasDiscount = !!product.discount_price;
+  
+  // Get product name based on language
+  const productName = language === 'he' ? product.name_he : product.name_en || product.name_he;
+  
+  // Text alignment based on language direction
+  const textAlign = language === 'he' ? 'right' : 'left';
+  const flexEnd = language === 'he' ? 'flex-end' : 'flex-start';
+  const flexStart = language === 'he' ? 'flex-start' : 'flex-end';
 
   return (
     <Link href={`/product/${product.id}`} asChild>
@@ -46,13 +53,13 @@ export function ProductCard({ product }: ProductCardProps) {
           {/* Badges Container */}
           <View style={styles.badgesContainer}>
             {product.is_organic && (
-              <Badge label={HE.product.organic} variant="success" style={styles.badge} />
+              <Badge label={t.product.organic} variant="success" style={styles.badge} />
             )}
             {product.seasonal_tag && (
               <Badge label={product.seasonal_tag} variant="accent" style={styles.badge} />
             )}
             {hasDiscount && (
-              <Badge label={HE.product.offer} variant="error" style={styles.badge} />
+              <Badge label={t.product.offer} variant="error" style={styles.badge} />
             )}
           </View>
 
@@ -67,15 +74,15 @@ export function ProductCard({ product }: ProductCardProps) {
 
           {/* Content */}
           <View style={styles.content}>
-            <Text variant="md" weight="semiBold" numberOfLines={2} style={styles.title}>
-              {product.name_he}
+            <Text variant="md" weight="semiBold" numberOfLines={2} style={{ textAlign }}>
+              {productName}
             </Text>
             
-            <Text variant="sm" color={theme.textTertiary} style={styles.unit}>
+            <Text variant="sm" color={theme.textTertiary} style={{ textAlign }}>
               {product.unit}
             </Text>
 
-            <View style={styles.priceContainer}>
+            <View style={[styles.priceContainer, { justifyContent: flexEnd }]}>
               <Text variant="lg" weight="bold" color={theme.text}>
                 {formatPrice(price)}
               </Text>
@@ -102,7 +109,7 @@ export function ProductCard({ product }: ProductCardProps) {
               ) : (
                 <AnimatedPressable
                   onPress={handleAddToCart}
-                  style={[styles.addButton, { backgroundColor: theme.primaryLight }]}
+                  style={[styles.addButton, { backgroundColor: theme.primaryLight, alignSelf: flexStart }]}
                   haptic
                 >
                   <MaterialIcons name="add-shopping-cart" size={20} color={theme.primaryDark} />
@@ -148,19 +155,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  title: {
-    marginBottom: 2,
-    textAlign: 'right', // RTL
-  },
-  unit: {
-    marginBottom: Spacing.sm,
-    textAlign: 'right', // RTL
-  },
   priceContainer: {
     flexDirection: 'row',
     alignItems: 'baseline',
     gap: Spacing.xs,
-    justifyContent: 'flex-end', // RTL - align to right
+    // justifyContent is set dynamically
   },
   oldPrice: {
     textDecorationLine: 'line-through',
@@ -176,6 +175,6 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'flex-start', // RTL - align to left (bottom corner)
+    // alignSelf is set dynamically
   },
 });

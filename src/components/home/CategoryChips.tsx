@@ -2,13 +2,13 @@
 // CategoryChips Component
 // ============================================================
 
-import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Text } from '../ui/Text';
-import { AnimatedPressable } from '../ui/AnimatedPressable';
-import { useThemeColor } from '@/hooks/useThemeColor';
 import { BorderRadius, Spacing } from '@/constants/theme';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { Category } from '@/types/models';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { AnimatedPressable } from '../ui/AnimatedPressable';
+import { Text } from '../ui/Text';
 
 interface CategoryChipsProps {
   categories: Category[];
@@ -24,15 +24,16 @@ export function CategoryChips({
   showAll = true,
 }: CategoryChipsProps) {
   const theme = useThemeColor();
+  const { t, language } = useTranslation();
 
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.container}
-      // Since it's RTL, we want it to start from the right
-      inverted={false} // React Native handles RTL scrollview automatically when I18nManager is configured
+      // In RTL, content flows from right to left, so "All" will appear at the right (left in LTR terms)
     >
+      {/* "All" chip - appears first (rightmost in RTL) */}
       {showAll && (
         <AnimatedPressable
           onPress={() => onSelect(undefined)}
@@ -49,13 +50,15 @@ export function CategoryChips({
             weight={!selectedId ? 'semiBold' : 'medium'}
             color={!selectedId ? '#FFFFFF' : theme.text}
           >
-            הכל
+            {t.home.seeAll}
           </Text>
         </AnimatedPressable>
       )}
 
       {categories.map((category) => {
         const isSelected = selectedId === category.id;
+        const categoryName = language === 'he' ? category.name_he : category.name_en || category.name_he;
+        
         return (
           <AnimatedPressable
             key={category.id}
@@ -77,7 +80,7 @@ export function CategoryChips({
                 weight={isSelected ? 'semiBold' : 'medium'}
                 color={isSelected ? '#FFFFFF' : theme.text}
               >
-                {category.name_he}
+                {categoryName}
               </Text>
             </View>
           </AnimatedPressable>

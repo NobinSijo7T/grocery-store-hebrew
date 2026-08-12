@@ -56,7 +56,7 @@ export default function SearchScreen() {
       {/* Search Header */}
       <View style={[styles.header, { paddingTop: insets.top + Spacing.sm, borderBottomColor: theme.border }]}>
         <AnimatedPressable onPress={() => router.back()} style={styles.backButton}>
-           <MaterialIcons name="arrow-forward" size={24} color={theme.text} />
+           <MaterialIcons name="arrow-back" size={24} color={theme.text} />
         </AnimatedPressable>
         
         <View style={[styles.searchInputContainer, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>

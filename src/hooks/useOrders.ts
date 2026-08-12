@@ -2,11 +2,11 @@
 // useOrders Hook
 // ============================================================
 
-import { useEffect } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import type { Order } from '@/types/models';
 import { useAuthStore } from '@/stores/authStore';
+import type { Order } from '@/types/models';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 // Fetch all orders for current customer
 async function fetchOrders(customerId: string): Promise<Order[]> {
@@ -53,8 +53,9 @@ export function useOrders() {
   useEffect(() => {
     if (!customer?.id) return;
 
-    const channel = supabase
-      .channel(`orders-${customer.id}`)
+    const channel = supabase.channel(`orders-${customer.id}`);
+    
+    channel
       .on(
         'postgres_changes',
         { 
@@ -92,8 +93,9 @@ export function useOrderDetails(orderId: string) {
   useEffect(() => {
     if (!orderId) return;
 
-    const channel = supabase
-      .channel(`delivery-${orderId}`)
+    const channel = supabase.channel(`delivery-${orderId}`);
+    
+    channel
       .on(
         'postgres_changes',
         { 
