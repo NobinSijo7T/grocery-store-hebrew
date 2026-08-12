@@ -206,7 +206,7 @@ export default function ProductDetailScreen() {
             <View style={styles.badgeRow}>
               {product.is_organic && <Badge label={HE.product.organic} variant="success" />}
               {product.seasonal_tag && <Badge label={product.seasonal_tag} variant="accent" />}
-              {product.is_featured && <Badge label="⭐ מומלץ" variant="info" />}
+              {product.is_featured && <Badge label="⭐ מומלץ" variant="primary" />}
               {hasDiscount && <Badge label={`${discountPercent}% הנחה`} variant="error" />}
             </View>
           )}
