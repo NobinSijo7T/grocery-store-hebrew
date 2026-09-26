@@ -103,12 +103,9 @@ export function ProductGrid({
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       renderItem={({ item, index }) => (
-        <Animated.View
-          entering={FadeInDown.delay(Math.min(index * 40, 240)).springify().damping(18)}
-          style={{ opacity: isLoading ? 0.6 : 1 }}
-        >
+        <View style={{ opacity: isLoading ? 0.6 : 1 }}>
           <ProductCard product={item} index={index} />
-        </Animated.View>
+        </View>
       )}
     />
   );
