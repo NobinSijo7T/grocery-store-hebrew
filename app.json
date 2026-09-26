@@ -14,7 +14,7 @@
     "android": {
       "package": "com.kirshnerfarm.app",
       "adaptiveIcon": {
-        "backgroundColor": "#2D8A4E",
+        "backgroundColor": "#ffffff",
         "foregroundImage": "./assets/images/android-icon-foreground.png"
       },
       "predictiveBackGestureEnabled": false,
@@ -32,9 +32,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#2D8A4E",
+          "backgroundColor": "#245C38",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 120
         }
       ],
       [

@@ -270,58 +270,61 @@ export default function AccountScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Profile Card — Warm Farm Club Card */}
-        <Animated.View
-          entering={FadeInDown.springify()}
-          style={[
-            styles.profileCard,
-            {
-              backgroundColor: theme.surfaceElevated,
-              ...Shadows.md,
-              shadowColor: theme.shadowColor,
-              flexDirection,
-            },
-          ]}
-        >
-          <View
+        <Animated.View entering={FadeInDown.springify()}>
+          <AnimatedPressable
+            onPress={() => router.push('/profile' as any)}
             style={[
-              styles.avatar,
+              styles.profileCard,
               {
-                backgroundColor: theme.primaryLight,
-                ...(isRTL ? { marginLeft: Spacing.lg } : { marginRight: Spacing.lg }),
+                backgroundColor: theme.surfaceElevated,
+                ...Shadows.md,
+                shadowColor: theme.shadowColor,
+                flexDirection,
               },
             ]}
           >
-            <Text variant="2xl" weight="bold" color={theme.primaryDark}>
-              {customer?.full_name?.charAt(0) || (language === 'he' ? 'ח' : 'F')}
-            </Text>
-            <View style={[styles.avatarBadge, { backgroundColor: theme.primary }]}>
-              <MaterialIcons name="eco" size={14} color="#FFFFFF" />
-            </View>
-          </View>
-
-          <View style={[styles.profileInfo, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
-            <View style={[styles.nameRow, { flexDirection }]}>
-              <Text variant="xl" weight="bold">
-                {customer?.full_name || (language === 'he' ? 'חבר משק' : 'Farm Member')}
+            <View
+              style={[
+                styles.avatar,
+                {
+                  backgroundColor: theme.primaryLight,
+                  ...(isRTL ? { marginLeft: Spacing.lg } : { marginRight: Spacing.lg }),
+                },
+              ]}
+            >
+              <Text variant="2xl" weight="bold" color={theme.primaryDark}>
+                {customer?.full_name?.charAt(0) || (language === 'he' ? 'ח' : 'F')}
               </Text>
+              <View style={[styles.avatarBadge, { backgroundColor: theme.primary }]}>
+                <MaterialIcons name="eco" size={14} color="#FFFFFF" />
+              </View>
             </View>
 
-            <Text variant="sm" color={theme.textSecondary} style={{ marginTop: 2 }}>
-              {session.user.email}
-            </Text>
+            <View style={[styles.profileInfo, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
+              <View style={[styles.nameRow, { flexDirection, justifyContent: 'space-between', width: '100%' }]}>
+                <Text variant="xl" weight="bold">
+                  {customer?.full_name || (language === 'he' ? 'חבר משק' : 'Farm Member')}
+                </Text>
+                <MaterialIcons name="edit" size={18} color={theme.textTertiary} />
+              </View>
 
-            {customer?.phone && (
-              <Text variant="xs" color={theme.textTertiary} style={{ marginTop: 2 }}>
-                {customer.phone}
+              <Text variant="sm" color={theme.textSecondary} style={{ marginTop: 2 }}>
+                {session.user.email}
               </Text>
-            )}
 
-            <View style={[styles.membershipPill, { backgroundColor: theme.primaryLight }]}>
-              <Text variant="xs" weight="bold" color={theme.primaryDark}>
-                {language === 'he' ? '🌾 חבר מועדון משק טרי' : '🌾 Fresh Farm Member'}
-              </Text>
+              {customer?.phone && (
+                <Text variant="xs" color={theme.textTertiary} style={{ marginTop: 2 }}>
+                  {customer.phone}
+                </Text>
+              )}
+
+              <View style={[styles.membershipPill, { backgroundColor: theme.primaryLight }]}>
+                <Text variant="xs" weight="bold" color={theme.primaryDark}>
+                  {language === 'he' ? '🌾 חבר מועדון משק טרי' : '🌾 Fresh Farm Member'}
+                </Text>
+              </View>
             </View>
-          </View>
+          </AnimatedPressable>
         </Animated.View>
 
         {/* Orders & Shopping Section */}
@@ -356,7 +359,7 @@ export default function AccountScreen() {
           {renderMenuItem(
             'location-on',
             t.account.addresses,
-            () => {},
+            () => router.push('/addresses' as any),
             null,
             3,
             '#FEF3D6', // warm wheat
@@ -365,7 +368,7 @@ export default function AccountScreen() {
           {renderMenuItem(
             'person-outline',
             t.account.profile,
-            () => {},
+            () => router.push('/profile' as any),
             null,
             4,
             '#E8F5E9',

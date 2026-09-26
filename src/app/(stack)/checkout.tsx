@@ -5,7 +5,7 @@
 // warm cream surface cards, spring step transitions, and smooth button feedback.
 
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -17,6 +17,7 @@ import { Text } from '@/components/ui/Text';
 import { ThemedView } from '@/components/ui/ThemedView';
 
 import { BorderRadius, Shadows, Spacing } from '@/constants/theme';
+import { useAddresses } from '@/hooks/useAddresses';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTranslation } from '@/hooks/useTranslation';
 import { supabase } from '@/lib/supabase';
@@ -35,6 +36,7 @@ export default function CheckoutScreen() {
 
   const customer = useAuthStore((s) => s.customer);
   const { items, subtotal, deliveryFee, total, clearCart } = useCartStore();
+  const { addresses, defaultAddress } = useAddresses();
 
   const [step, setStep] = useState<CheckoutStep>('address');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -44,6 +46,15 @@ export default function CheckoutScreen() {
   const [city, setCity] = useState('');
   const [notes, setNotes] = useState('');
   const [timeSlot, setTimeSlot] = useState<string | null>(null);
+
+  // Auto prefill from customer's default address
+  useEffect(() => {
+    if (defaultAddress && !street && !city) {
+      setCity(defaultAddress.city);
+      setStreet(defaultAddress.street);
+      if (defaultAddress.notes) setNotes(defaultAddress.notes);
+    }
+  }, [defaultAddress]);
 
   const isRTL = language === 'he';
   const textAlign = isRTL ? 'right' : 'left';
@@ -173,12 +184,12 @@ export default function CheckoutScreen() {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        enabled={Platform.OS === 'ios'}
       >
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+          keyboardShouldPersistTaps="always"
         >
           {/* STEP PROGRESS PILL BAR */}
           <View style={[styles.stepIndicatorContainer, { flexDirection }]}>
@@ -245,6 +256,59 @@ export default function CheckoutScreen() {
                   ? 'השליח שלנו יביא את התוצרת הטרייה ישירות לדלת שלך'
                   : 'Our courier will deliver the fresh produce straight to your doorstep'}
               </Text>
+
+              {/* Saved Addresses quick selection */}
+              {addresses.length > 0 && (
+                <View style={{ marginBottom: Spacing.md }}>
+                  <Text
+                    variant="xs"
+                    weight="bold"
+                    color={theme.textSecondary}
+                    style={{ marginBottom: Spacing.xs, textAlign }}
+                  >
+                    {language === 'he' ? 'בחר מכתובות שמורות:' : 'Select from saved addresses:'}
+                  </Text>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    keyboardShouldPersistTaps="always"
+                    contentContainerStyle={[
+                      styles.savedAddressesRow,
+                      { flexDirection },
+                    ]}
+                  >
+                    {addresses.map((addr) => {
+                      const isSelected = city === addr.city && street === addr.street;
+                      return (
+                        <AnimatedPressable
+                          key={addr.id}
+                          onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            setCity(addr.city);
+                            setStreet(addr.street);
+                            if (addr.notes) setNotes(addr.notes);
+                          }}
+                          style={[
+                            styles.savedAddressPill,
+                            {
+                              backgroundColor: isSelected ? theme.primaryLight : theme.surfaceElevated,
+                              borderColor: isSelected ? theme.primary : theme.border,
+                            },
+                          ]}
+                        >
+                          <Text
+                            variant="xs"
+                            weight={isSelected ? 'bold' : 'medium'}
+                            color={isSelected ? theme.primaryDark : theme.text}
+                          >
+                            {addr.label}: {addr.street}, {addr.city}
+                          </Text>
+                        </AnimatedPressable>
+                      );
+                    })}
+                  </ScrollView>
+                </View>
+              )}
 
               <Input
                 label={t.checkout.city}
@@ -540,5 +604,15 @@ const styles = StyleSheet.create({
     right: 0,
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.md,
+  },
+  savedAddressesRow: {
+    gap: Spacing.sm,
+    paddingVertical: Spacing.xs,
+  },
+  savedAddressPill: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
   },
 });

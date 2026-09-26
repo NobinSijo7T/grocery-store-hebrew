@@ -39,6 +39,7 @@ export interface Product {
   seasonal_tag: string | null;
   created_at: string;
   updated_at: string;
+  likes_count?: number;
   // Joined fields
   category?: Category;
 }
@@ -50,7 +51,9 @@ export interface Customer {
   phone: string | null;
   default_address: string | null;
   role: UserRole;
+  avatar_url?: string | null;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface Address {
@@ -59,9 +62,14 @@ export interface Address {
   label: string;
   street: string;
   city: string;
+  apartment?: string | null;
+  floor?: string | null;
+  entrance?: string | null;
+  postal_code?: string | null;
   notes: string | null;
   is_default: boolean;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface Cart {

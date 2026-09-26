@@ -3,7 +3,7 @@
 // ============================================================
 
 import React, { forwardRef, useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetBackdrop,
@@ -52,6 +52,9 @@ export const BottomSheet = forwardRef<BottomSheetModal, BottomSheetProps>(
         snapPoints={defaultSnapPoints}
         enablePanDownToClose={enablePanDownToClose}
         onDismiss={onDismiss}
+        keyboardBehavior={Platform.OS === 'ios' ? 'interactive' : 'fillParent'}
+        android_keyboardInputMode="adjustResize"
+        keyboardBlurBehavior="restore"
         backdropComponent={renderBackdrop}
         backgroundStyle={{
           backgroundColor: theme.surface,
@@ -64,6 +67,7 @@ export const BottomSheet = forwardRef<BottomSheetModal, BottomSheetProps>(
       >
         {scrollable ? (
           <BottomSheetScrollView
+            keyboardShouldPersistTaps="always"
             contentContainerStyle={styles.contentContainer}
           >
             {children}

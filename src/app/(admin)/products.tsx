@@ -197,6 +197,7 @@ export default function AdminProducts() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           renderItem={renderItem}
+          keyboardShouldPersistTaps="always"
           onRefresh={fetchProducts}
           refreshing={loading}
           ListEmptyComponent={

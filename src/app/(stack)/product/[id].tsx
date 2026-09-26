@@ -28,6 +28,7 @@ import { Text } from '@/components/ui/Text';
 import { ThemedView } from '@/components/ui/ThemedView';
 
 import { useProduct } from '@/hooks/useProducts';
+import { useFavorites } from '@/hooks/useFavorites';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useCartStore } from '@/stores/cartStore';
@@ -55,23 +56,24 @@ export default function ProductDetailScreen() {
   const { t, language } = useTranslation();
 
   const { data: product, isLoading, isError } = useProduct(id as string);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const isFavorited = isFavorite(id as string);
 
   const cartItemQuantity = useCartStore((state) => state.getItemQuantity(id as string));
   const { addItem, incrementItem, decrementItem } = useCartStore();
 
   const [quantityToAdd, setQuantityToAdd] = useState(1);
-  const [isFavorited, setIsFavorited] = useState(false);
 
   // Reanimated spring for heart
   const heartScale = useSharedValue(1);
 
   const handleFavoritePress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setIsFavorited((prev) => !prev);
     heartScale.value = withSequence(
       withSpring(1.4, { damping: 4, stiffness: 350 }),
       withSpring(1, { damping: 10, stiffness: 300 })
     );
+    toggleFavorite(id as string);
   };
 
   const heartAnimatedStyle = useAnimatedStyle(() => ({

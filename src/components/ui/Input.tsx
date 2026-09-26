@@ -83,9 +83,8 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
           {
             backgroundColor: theme.surfaceElevated,
             borderColor: error ? theme.error : isFocused ? theme.primary : theme.border,
-            borderWidth: isFocused || error ? 1.5 : 1,
-            ...(isFocused ? Shadows.sm : {}),
-            shadowColor: isFocused ? theme.primary : undefined,
+            borderWidth: 1.5,
+            ...(Platform.OS === 'ios' && isFocused ? Shadows.sm : {}),
             flexDirection: isRTL ? 'row-reverse' : 'row',
           },
         ]}

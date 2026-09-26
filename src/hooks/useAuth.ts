@@ -229,6 +229,50 @@ export function useAuth() {
     if (error) throw error;
   };
 
+  // Update customer profile
+  const updateProfile = async ({
+    fullName,
+    phone,
+    avatarUrl,
+  }: {
+    fullName?: string;
+    phone?: string;
+    avatarUrl?: string;
+  }) => {
+    if (!customer?.id) throw new Error('Customer not logged in');
+
+    const updatePayload: Record<string, any> = {};
+    if (fullName !== undefined) updatePayload.full_name = fullName.trim();
+    if (phone !== undefined) updatePayload.phone = phone.trim() || null;
+    if (avatarUrl !== undefined) updatePayload.avatar_url = avatarUrl;
+
+    const { data, error } = await supabase
+      .from('customers')
+      .update(updatePayload)
+      .eq('id', customer.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    if (data) {
+      setCustomer(data as Customer);
+    }
+
+    // Also sync Supabase auth user metadata
+    if (fullName !== undefined) {
+      try {
+        await supabase.auth.updateUser({
+          data: { full_name: fullName.trim() },
+        });
+      } catch (e) {
+        console.warn('Could not update auth user metadata:', e);
+      }
+    }
+
+    return data as Customer;
+  };
+
   return {
     session,
     customer,
@@ -240,5 +284,6 @@ export function useAuth() {
     signInWithGoogle,
     signOut,
     resetPassword,
+    updateProfile,
   };
 }

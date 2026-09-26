@@ -23,6 +23,7 @@ import { ThemedView } from '@/components/ui/ThemedView';
 
 import { useBanners } from '@/hooks/useBanners';
 import { useCategories } from '@/hooks/useCategories';
+import { useFavorites } from '@/hooks/useFavorites';
 import { useProducts } from '@/hooks/useProducts';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -47,6 +48,7 @@ export default function HomeScreen() {
 
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { data: banners, isLoading: bannersLoading } = useBanners();
+  const { favoriteCount } = useFavorites();
 
   const activeFilters = useMemo(() => ({ categoryId }), [categoryId]);
 
@@ -210,6 +212,34 @@ export default function HomeScreen() {
 
         {/* Right-side actions */}
         <View style={styles.topBarActions}>
+          {/* Favorites */}
+          <AnimatedPressable
+            onPress={() => router.push('/favorites')}
+            scaleDown={0.92}
+            haptic
+          >
+            <View
+              style={[
+                styles.iconButton,
+                {
+                  backgroundColor: theme.surfaceElevated,
+                  borderColor: theme.border,
+                },
+              ]}
+            >
+              <MaterialIcons
+                name={favoriteCount > 0 ? 'favorite' : 'favorite-border'}
+                size={20}
+                color={favoriteCount > 0 ? '#E63946' : theme.text}
+              />
+              {favoriteCount > 0 && (
+                <View style={[styles.badgeCount, { backgroundColor: theme.primary }]}>
+                  <Text style={styles.badgeText}>{favoriteCount > 99 ? '99+' : favoriteCount}</Text>
+                </View>
+              )}
+            </View>
+          </AnimatedPressable>
+
           {/* Settings */}
           <AnimatedPressable onPress={openSettings} scaleDown={0.92} haptic>
             <View
@@ -443,5 +473,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
+  },
+  badgeCount: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
 });

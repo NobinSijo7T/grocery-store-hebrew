@@ -4,12 +4,12 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { queryClient } from '@/lib/queryClient';
-import { useLanguageStore } from '@/stores/languageStore';
+import { SPLASH_CONFIG } from '@/constants/splashConfig';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { I18nManager, LogBox } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -38,25 +38,34 @@ export default function RootLayout() {
   });
 
   const { isLoading: authLoading } = useAuth();
-  const [isReady, setIsReady] = useState(false);
+  const isReady = Boolean(fontsLoaded && !authLoading);
 
   useEffect(() => {
-    if (fontsLoaded && !authLoading) {
-      setIsReady(true);
-      SplashScreen.hideAsync();
+    // When splash is disabled, dismiss native splash once ready.
+    // When enabled, the custom SplashScreen component dismisses it
+    // on first frame paint to guarantee zero white flash.
+    if (isReady && !SPLASH_CONFIG.enabled) {
+      SplashScreen.hideAsync().catch(() => {});
     }
-  }, [fontsLoaded, authLoading]);
+  }, [isReady]);
 
   if (!isReady) {
     return null;
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: SPLASH_CONFIG.colors.background }}>
       <BottomSheetModalProvider>
         <QueryClientProvider client={queryClient}>
-          <Stack screenOptions={{ headerShown: false, contentStyle: { flex: 1 } }}>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { flex: 1, backgroundColor: SPLASH_CONFIG.colors.background },
+              animation: 'fade',
+            }}
+          >
+            <Stack.Screen name="index" options={{ headerShown: false, animation: 'fade' }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'fade' }} />
           </Stack>
         </QueryClientProvider>
       </BottomSheetModalProvider>

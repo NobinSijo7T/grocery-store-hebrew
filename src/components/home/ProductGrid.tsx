@@ -11,7 +11,7 @@ import { FlatList, Platform, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProductCard } from '../product/ProductCard';
-import { ProductCardSkeleton } from '../product/ProductCardSkeleton';
+import { ProductLoadingAnimation } from '../product/ProductLoadingAnimation';
 import { SmoothLoader } from '../ui/SmoothLoader';
 import { Text } from '../ui/Text';
 
@@ -38,22 +38,22 @@ export function ProductGrid({
   const TAB_BAR_BOTTOM = Platform.OS === 'ios' ? 24 : 16;
   const bottomPadding = TAB_BAR_HEIGHT + TAB_BAR_BOTTOM + Spacing.lg;
 
-  // Header with optional smooth loading pill
+  // Header with optional smooth loading pill (shown when updating with existing products)
   const fullHeader = (
     <View>
       {header}
       {/* Smooth pill indicator when loading while items are already shown or updating */}
-      {isLoading && (
+      {isLoading && products.length > 0 && (
         <SmoothLoader
           variant="pill"
           size="sm"
-          message={isRTL ? 'טוען תוצרת טרייה מהשדה...' : 'Harvesting farm fresh produce...'}
+          message={isRTL ? 'מעדכן תוצרת מהשדה...' : 'Updating fresh harvest...'}
         />
       )}
     </View>
   );
 
-  // 1. Initial Loading State (No products loaded yet)
+  // 1. Initial Loading State (No products loaded yet) — Living Organic Harvest Animation
   if (isLoading && products.length === 0) {
     return (
       <FlatList
@@ -62,14 +62,8 @@ export function ProductGrid({
         ListHeaderComponent={fullHeader}
         contentContainerStyle={[styles.listContent, { paddingBottom: bottomPadding }]}
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        ListEmptyComponent={
-          <Animated.View entering={FadeIn.duration(300)} style={styles.grid}>
-            {Array.from({ length: 6 }).map((_, i) => (
-              <ProductCardSkeleton key={`skeleton-${i}`} index={i} />
-            ))}
-          </Animated.View>
-        }
+        keyboardShouldPersistTaps="always"
+        ListEmptyComponent={<ProductLoadingAnimation />}
       />
     );
   }
@@ -90,7 +84,7 @@ export function ProductGrid({
   // 3. Populated Grid (with smooth loading overlay if refreshing/filtering)
   return (
     <FlatList
-      key={products.length > 0 ? 'grid' : 'empty'}
+      key="product-grid"
       data={products}
       keyExtractor={(item) => item.id}
       numColumns={2}
@@ -101,7 +95,7 @@ export function ProductGrid({
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
       showsVerticalScrollIndicator={false}
-      keyboardShouldPersistTaps="handled"
+      keyboardShouldPersistTaps="always"
       renderItem={({ item, index }) => (
         <View style={{ opacity: isLoading ? 0.6 : 1 }}>
           <ProductCard product={item} index={index} />

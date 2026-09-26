@@ -7,6 +7,8 @@
 import { BorderRadius, Layout, Shadows, Spacing } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useFavorites } from '@/hooks/useFavorites';
+import { useThemeStore } from '@/stores/themeStore';
 import { useCartStore } from '@/stores/cartStore';
 import type { Product } from '@/types/models';
 import { formatPrice } from '@/utils/format';
@@ -42,7 +44,11 @@ const blurhash =
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const theme = useThemeColor();
+  const isDark = useThemeStore((s) => s.isDark);
   const { t, language } = useTranslation();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorited = isFavorite(product.id);
+
   const cartItemQuantity = useCartStore((state) => state.getItemQuantity(product.id));
   const { addItem, incrementItem, decrementItem } = useCartStore();
 
@@ -51,6 +57,8 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const cardShadowOpacity = useSharedValue(0.10);
   // Add-to-cart button bounce
   const btnScale = useSharedValue(1);
+  // Heart bounce animation
+  const heartScale = useSharedValue(1);
 
   const cardAnimStyle = useAnimatedStyle(() => ({
     transform: [{ scale: cardScale.value }],
@@ -60,6 +68,22 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const btnAnimStyle = useAnimatedStyle(() => ({
     transform: [{ scale: btnScale.value }],
   }));
+
+  const heartAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: heartScale.value }],
+  }));
+
+  const handleFavoritePress = useCallback(
+    (e: any) => {
+      e?.stopPropagation?.();
+      heartScale.value = withSequence(
+        withSpring(1.4, { damping: 4, stiffness: 350 }),
+        withSpring(1, { damping: 10, stiffness: 300 })
+      );
+      toggleFavorite(product.id);
+    },
+    [heartScale, product.id, toggleFavorite]
+  );
 
   const handleCardPress = useCallback(() => {
     router.push(`/product/${product.id}` as any);
@@ -153,6 +177,25 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
                 </Text>
               </View>
             )}
+            {/* Favorite / Like Heart Button */}
+            <AnimatedPressableBase
+              onPress={handleFavoritePress}
+              hitSlop={8}
+              style={[
+                styles.favoriteButton,
+                {
+                  backgroundColor: isDark ? 'rgba(30, 30, 26, 0.85)' : 'rgba(255, 255, 255, 0.92)',
+                  borderColor: theme.border,
+                },
+                heartAnimStyle,
+              ]}
+            >
+              <MaterialIcons
+                name={favorited ? 'favorite' : 'favorite-border'}
+                size={18}
+                color={favorited ? '#E63946' : theme.textSecondary}
+              />
+            </AnimatedPressableBase>
           </View>
 
           {/* Content */}
@@ -280,5 +323,22 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  favoriteButton: {
+    position: 'absolute',
+    bottom: Spacing.sm,
+    end: Spacing.sm,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.14,
+    shadowRadius: 4,
+    elevation: 3,
+    zIndex: 10,
   },
 });

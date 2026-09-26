@@ -109,14 +109,14 @@ export default function RegisterScreen() {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        enabled={Platform.OS === 'ios'}
       >
         <ScrollView
           contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 50 }]}
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+          keyboardShouldPersistTaps="always"
         >
-          <Animated.View entering={FadeInDown.springify()}>
+          <View>
             {/* Logo */}
             <View style={styles.logoContainer}>
               <Image
@@ -211,7 +211,7 @@ export default function RegisterScreen() {
                 </Text>
               </AnimatedPressable>
             </View>
-          </Animated.View>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </ThemedView>

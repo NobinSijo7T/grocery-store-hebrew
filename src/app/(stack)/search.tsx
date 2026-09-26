@@ -65,11 +65,20 @@ export default function SearchScreen() {
     };
   }, []);
 
+  // Smooth focus after stack navigation transition completes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 150);
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleSuggestionPress = (tag: string) => {
     Haptics.selectionAsync();
     const cleanWord = tag.split(' ').slice(1).join(' ');
     setLocalSearch(cleanWord);
     setSearch(cleanWord);
+    searchInputRef.current?.focus();
   };
 
   return (
@@ -118,23 +127,25 @@ export default function SearchScreen() {
             placeholderTextColor={theme.textTertiary}
             value={localSearch}
             onChangeText={setLocalSearch}
-            autoFocus
             autoCapitalize="none"
             autoCorrect={false}
             keyboardAppearance={theme.text === '#FEFEF7' ? 'dark' : 'light'}
           />
-          {(localSearch?.length ?? 0) > 0 && (
-            <AnimatedPressable
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setLocalSearch('');
-                setSearch('');
-              }}
-              style={styles.clearBtn}
-            >
-              <MaterialIcons name="close" size={18} color={theme.textSecondary} />
-            </AnimatedPressable>
-          )}
+          <AnimatedPressable
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setLocalSearch('');
+              setSearch('');
+              searchInputRef.current?.focus();
+            }}
+            disabled={!localSearch || localSearch.length === 0}
+            style={[
+              styles.clearBtn,
+              { opacity: (localSearch?.length ?? 0) > 0 ? 1 : 0 },
+            ]}
+          >
+            <MaterialIcons name="close" size={18} color={theme.textSecondary} />
+          </AnimatedPressable>
         </View>
       </View>
 
@@ -143,7 +154,7 @@ export default function SearchScreen() {
         <Animated.ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+          keyboardShouldPersistTaps="always"
           contentContainerStyle={[styles.filtersScrollContent, { flexDirection }]}
         >
           <AnimatedPressable

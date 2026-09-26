@@ -33,53 +33,32 @@ export default function FavoritesScreen() {
   const isRTL = language === 'he';
   const flexDirection = isRTL ? 'row-reverse' : 'row';
 
-  const { favorites, isLoading } = useFavorites();
-  const products = (favorites?.map((f) => f.product).filter(Boolean) as any[]) || [];
+  const { favoriteProducts, favoriteCount, isLoading } = useFavorites();
 
-  if (!customer) {
+  const renderGuestBanner = () => {
+    if (customer) return null;
     return (
-      <ThemedView style={styles.centerContainer}>
-        <View
-          style={[
-            styles.header,
-            {
-              paddingTop: insets.top + Spacing.sm,
-              flexDirection,
-              position: 'absolute',
-              top: 0,
-              width: '100%',
-            },
-          ]}
-        >
-          <AnimatedPressable onPress={() => router.back()} style={styles.backButton}>
-            <MaterialIcons name={isRTL ? 'arrow-forward' : 'arrow-back'} size={24} color={theme.text} />
-          </AnimatedPressable>
-          <Text variant="xl" weight="bold">
-            {t.account.favorites}
-          </Text>
-          <View style={{ width: 32 }} />
-        </View>
-
-        <View style={[styles.emptyIconBg, { backgroundColor: '#FDE8E4', marginBottom: Spacing.lg }]}>
-          <Text style={{ fontSize: 44 }}>❤️</Text>
-        </View>
-
-        <Text variant="xl" weight="bold" style={{ marginBottom: Spacing.xs, textAlign: 'center' }}>
-          {isRTL ? 'שמירת מועדפים' : 'Save Your Favorites'}
-        </Text>
-        <Text
-          variant="md"
-          color={theme.textSecondary}
-          style={{ marginBottom: Spacing.xl, textAlign: 'center', maxWidth: 280 }}
-        >
+      <AnimatedPressable
+        onPress={() => router.push('/(auth)/login' as any)}
+        style={[
+          styles.guestSyncBanner,
+          {
+            backgroundColor: theme.primaryLight,
+            borderColor: theme.border,
+            flexDirection,
+          },
+        ]}
+      >
+        <MaterialIcons name="cloud-sync" size={20} color={theme.primaryDark} />
+        <Text variant="xs" weight="semiBold" color={theme.primaryDark} style={{ flex: 1 }}>
           {isRTL
-            ? 'התחבר לחשבון כדי לשמור מוצרים אהובים ולהזמין אותם שוב בקליק'
-            : 'Sign in to save your favorite fresh produce and reorder with ease'}
+            ? 'התחברו כדי לשמור את המועדפים שלכם בענן ולצפות בהם מכל מכשיר'
+            : 'Sign in to sync your favorites to cloud across all devices'}
         </Text>
-        <Button title={t.auth.signIn} onPress={() => router.push('/account')} size="lg" />
-      </ThemedView>
+        <MaterialIcons name={isRTL ? 'chevron-left' : 'chevron-right'} size={18} color={theme.primaryDark} />
+      </AnimatedPressable>
     );
-  }
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -89,31 +68,41 @@ export default function FavoritesScreen() {
           {
             paddingTop: insets.top + Spacing.sm,
             flexDirection,
+            borderBottomColor: theme.borderLight,
+            borderBottomWidth: StyleSheet.hairlineWidth,
           },
         ]}
       >
         <AnimatedPressable onPress={() => router.back()} style={styles.backButton}>
           <MaterialIcons name={isRTL ? 'arrow-forward' : 'arrow-back'} size={24} color={theme.text} />
         </AnimatedPressable>
-        <Text variant="xl" weight="bold">
-          {t.account.favorites}
-        </Text>
+        <View style={{ alignItems: 'center' }}>
+          <Text variant="xl" weight="bold">
+            {t.account.favorites}
+          </Text>
+          {favoriteCount > 0 && (
+            <Text variant="xs" color={theme.textSecondary}>
+              {isRTL ? `${favoriteCount} מוצרים שמורים` : `${favoriteCount} saved products`}
+            </Text>
+          )}
+        </View>
         <View style={{ width: 32 }} />
       </View>
 
       <View style={{ flex: 1 }}>
-        {!isLoading && products.length === 0 ? (
+        {!isLoading && favoriteProducts.length === 0 ? (
           <Animated.View entering={FadeInDown.springify()} style={styles.emptyContainer}>
             <View style={[styles.emptyIconBg, { backgroundColor: '#FDE8E4' }]}>
               <Text style={{ fontSize: 46 }}>🧺</Text>
             </View>
             <Text variant="2xl" weight="bold" style={styles.emptyTitle}>
-              {isRTL ? 'עוד לא שמרתם מועדפים' : 'No favorites saved yet'}
+              {t.account.likedEmpty || (isRTL ? 'עוד לא שמרתם מועדפים' : 'No favorites saved yet')}
             </Text>
             <Text variant="md" color={theme.textSecondary} style={styles.emptySubtitle}>
-              {isRTL
-                ? 'לחצו על הלב במוצרים שאתם אוהבים כדי למצוא אותם כאן תמיד'
-                : 'Tap the heart on any farm product to save it for quick reordering'}
+              {t.account.likedEmptySubtitle ||
+                (isRTL
+                  ? 'לחצו על הלב במוצרים שאתם אוהבים כדי למצוא אותם כאן תמיד'
+                  : 'Tap the heart on any farm product to save it for quick reordering')}
             </Text>
             <Button
               title={t.cart.startShopping}
@@ -123,7 +112,11 @@ export default function FavoritesScreen() {
             />
           </Animated.View>
         ) : (
-          <ProductGrid products={products} isLoading={isLoading} />
+          <ProductGrid
+            products={favoriteProducts}
+            isLoading={isLoading}
+            header={renderGuestBanner()}
+          />
         )}
       </View>
     </ThemedView>
@@ -172,5 +165,14 @@ const styles = StyleSheet.create({
     maxWidth: 290,
     marginBottom: Spacing.xl,
     lineHeight: 22,
+  },
+  guestSyncBanner: {
+    alignItems: 'center',
+    gap: Spacing.sm,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
   },
 });

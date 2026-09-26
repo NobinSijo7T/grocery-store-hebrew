@@ -100,14 +100,14 @@ export default function LoginScreen() {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        enabled={Platform.OS === 'ios'}
       >
         <ScrollView
           contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 50 }]}
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
+          keyboardShouldPersistTaps="always"
         >
-          <Animated.View entering={FadeInDown.springify()}>
+          <View>
             {/* Farm Brand Header */}
             <View style={styles.logoContainer}>
               <Image
@@ -193,7 +193,7 @@ export default function LoginScreen() {
                 </Text>
               </AnimatedPressable>
             </View>
-          </Animated.View>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </ThemedView>
