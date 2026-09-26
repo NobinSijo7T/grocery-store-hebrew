@@ -173,6 +173,8 @@ export const HE = {
     signUp: 'הירשם',
     signIn: 'התחבר',
     orContinueWith: 'או המשך עם',
+    continueWithGoogle: 'המשך באמצעות Google',
+    googleSignInError: 'שגיאה בהתחברות באמצעות Google',
     fullName: 'שם מלא',
     phone: 'מספר טלפון',
     resetSent: 'נשלח קישור לאיפוס סיסמה',

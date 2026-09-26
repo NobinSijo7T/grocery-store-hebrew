@@ -173,6 +173,8 @@ export const EN = {
     signUp: 'Sign Up',
     signIn: 'Sign In',
     orContinueWith: 'Or continue with',
+    continueWithGoogle: 'Continue with Google',
+    googleSignInError: 'Google Sign-In failed',
     fullName: 'Full Name',
     phone: 'Phone Number',
     resetSent: 'Password reset link sent',

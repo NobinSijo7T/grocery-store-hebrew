@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Text } from '@/components/ui/Text';
 import { ThemedView } from '@/components/ui/ThemedView';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 
 import { BorderRadius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
@@ -25,12 +26,13 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
   const theme = useThemeColor();
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const { t, language } = useTranslation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const isRTL = language === 'he';
   const textAlign = isRTL ? 'right' : 'left';
@@ -60,6 +62,25 @@ export default function LoginScreen() {
       );
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setIsGoogleLoading(true);
+    try {
+      const res = await signInWithGoogle();
+      if (res) {
+        router.replace('/(tabs)/account');
+      }
+    } catch (error: any) {
+      Alert.alert(
+        language === 'he' ? 'שגיאת התחברות עם Google' : 'Google Sign-In Error',
+        error.message ||
+          (language === 'he' ? 'לא ניתן להשלים את ההתחברות' : 'Could not complete Google sign-in')
+      );
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
@@ -143,6 +164,20 @@ export default function LoginScreen() {
                 style={{ marginTop: Spacing.xl }}
                 icon="login"
               />
+
+              <View style={styles.dividerContainer}>
+                <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
+                <Text variant="sm" color={theme.textTertiary} style={styles.dividerText}>
+                  {t.auth.orContinueWith}
+                </Text>
+                <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
+              </View>
+
+              <GoogleSignInButton
+                onPress={handleGoogleSignIn}
+                loading={isGoogleLoading}
+                disabled={isLoading}
+              />
             </View>
 
             <View style={[styles.footer, { flexDirection: flexDirection as any }]}>
@@ -198,6 +233,18 @@ const styles = StyleSheet.create({
   forgotPassword: {
     marginTop: 2,
     paddingVertical: 4,
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: Spacing.lg,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+  },
+  dividerText: {
+    paddingHorizontal: Spacing.md,
   },
   footer: {
     justifyContent: 'center',
