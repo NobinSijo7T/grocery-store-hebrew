@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
 import { ThemedView } from '@/components/ui/ThemedView';
 import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
+import { SmoothLoader } from '@/components/ui/SmoothLoader';
 
 import { BorderRadius, Shadows, Spacing } from '@/constants/theme';
 import { useOrders } from '@/hooks/useOrders';
@@ -88,10 +89,12 @@ export default function OrdersScreen() {
   if (isLoading && !isRefetching) {
     return (
       <ThemedView style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={theme.primary} />
-        <Text variant="md" color={theme.textSecondary} style={{ marginTop: Spacing.md }}>
-          {language === 'he' ? 'טוען הזמנות...' : 'Loading orders...'}
-        </Text>
+        <SmoothLoader
+          variant="fullscreen"
+          size="lg"
+          icon="📦"
+          message={language === 'he' ? 'טוען הזמנות מהמשק...' : 'Retrieving your farm orders...'}
+        />
       </ThemedView>
     );
   }

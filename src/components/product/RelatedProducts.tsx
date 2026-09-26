@@ -6,7 +6,7 @@ import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text } from '../ui/Text';
 import { ProductCard } from './ProductCard';
-import { Skeleton } from '../ui/Skeleton';
+import { ProductCardSkeleton } from './ProductCardSkeleton';
 import { useProducts } from '@/hooks/useProducts';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useThemeColor } from '@/hooks/useThemeColor';
@@ -50,13 +50,12 @@ export function RelatedProducts({ categoryId, currentProductId }: RelatedProduct
       >
         {isLoading
           ? Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton
+              <View
                 key={`skeleton-${i}`}
-                width={Layout.productCardWidth}
-                height={290}
-                borderRadius={16}
                 style={isRTL ? { marginLeft: Spacing.md } : { marginRight: Spacing.md }}
-              />
+              >
+                <ProductCardSkeleton index={i} />
+              </View>
             ))
           : related.map((product, index) => (
               <Animated.View

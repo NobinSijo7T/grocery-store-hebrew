@@ -248,7 +248,7 @@ export default function SearchScreen() {
             </View>
           </Animated.View>
         ) : (
-          <ProductGrid products={products || []} isLoading={isLoading && !isRefetching} />
+          <ProductGrid products={products || []} isLoading={isLoading} />
         )}
       </View>
     </ThemedView>

@@ -242,7 +242,7 @@ export default function HomeScreen() {
       <View style={{ flex: 1 }}>
         <ProductGrid
           products={products || []}
-          isLoading={productsLoading && !isRefetching}
+          isLoading={productsLoading}
           header={renderHeader()}
         />
       </View>

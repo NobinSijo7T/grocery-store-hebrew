@@ -1,22 +1,22 @@
 // ============================================================
 // Skeleton Loader — Warm Organic Shimmer
 // ============================================================
-// Uses cream/linen tones instead of cold gray.
-// Shimmer sweep moves diagonally for more organic feel.
+// Uses warm linen/cream tones instead of cold sterile gray.
+// Smooth 60fps linear-gradient sweep with subtle ambient breathing.
 
+import { BorderRadius } from '@/constants/theme';
+import { useThemeColor } from '@/hooks/useThemeColor';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect } from 'react';
-import { View, type ViewStyle, type DimensionValue } from 'react-native';
+import { View, type DimensionValue, type ViewStyle } from 'react-native';
 import Animated, {
+  Easing,
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
   withTiming,
-  interpolate,
-  Easing,
 } from 'react-native-reanimated';
-import { useThemeColor } from '@/hooks/useThemeColor';
-import { BorderRadius } from '@/constants/theme';
-import { LinearGradient } from 'expo-linear-gradient';
 
 export interface SkeletonProps {
   width?: DimensionValue;
@@ -46,11 +46,7 @@ export function Skeleton({
   }, [progress]);
 
   const animatedStyle = useAnimatedStyle(() => {
-    const translateX = interpolate(
-      progress.value,
-      [0, 1],
-      [-250, 250]
-    );
+    const translateX = interpolate(progress.value, [0, 1], [-450, 450]);
     return {
       transform: [{ translateX }],
     };
@@ -69,7 +65,18 @@ export function Skeleton({
         style,
       ]}
     >
-      <Animated.View style={[{ position: 'absolute', top: 0, bottom: 0, left: -100, right: -100 }, animatedStyle]}>
+      <Animated.View
+        style={[
+          {
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: -150,
+            right: -150,
+          },
+          animatedStyle,
+        ]}
+      >
         <LinearGradient
           colors={[
             theme.skeleton,

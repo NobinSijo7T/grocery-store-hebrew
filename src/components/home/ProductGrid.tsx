@@ -1,16 +1,18 @@
 // ============================================================
-// ProductGrid Component
+// ProductGrid Component — Farm-to-Table Grid with Smooth Loader
 // ============================================================
 
-import { Layout, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTranslation } from '@/hooks/useTranslation';
 import type { Product } from '@/types/models';
 import React from 'react';
 import { FlatList, Platform, StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProductCard } from '../product/ProductCard';
-import { Skeleton } from '../ui/Skeleton';
+import { ProductCardSkeleton } from '../product/ProductCardSkeleton';
+import { SmoothLoader } from '../ui/SmoothLoader';
 import { Text } from '../ui/Text';
 
 interface ProductGridProps {
@@ -29,39 +31,52 @@ export function ProductGrid({
   const theme = useThemeColor();
   const { t, language } = useTranslation();
   const insets = useSafeAreaInsets();
+  const isRTL = language === 'he';
 
   // Calculate bottom padding: tab bar height + bottom margin + safe area
   const TAB_BAR_HEIGHT = Platform.OS === 'ios' ? 88 : 80;
   const TAB_BAR_BOTTOM = Platform.OS === 'ios' ? 24 : 16;
   const bottomPadding = TAB_BAR_HEIGHT + TAB_BAR_BOTTOM + Spacing.lg;
 
+  // Header with optional smooth loading pill
+  const fullHeader = (
+    <View>
+      {header}
+      {/* Smooth pill indicator when loading while items are already shown or updating */}
+      {isLoading && (
+        <SmoothLoader
+          variant="pill"
+          size="sm"
+          message={isRTL ? 'טוען תוצרת טרייה מהשדה...' : 'Harvesting farm fresh produce...'}
+        />
+      )}
+    </View>
+  );
+
+  // 1. Initial Loading State (No products loaded yet)
   if (isLoading && products.length === 0) {
     return (
       <FlatList
         data={[]}
         renderItem={() => null}
-        ListHeaderComponent={header}
+        ListHeaderComponent={fullHeader}
         contentContainerStyle={[styles.listContent, { paddingBottom: bottomPadding }]}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         ListEmptyComponent={
-          <View style={styles.grid}>
+          <Animated.View entering={FadeIn.duration(300)} style={styles.grid}>
             {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton
-                key={`skeleton-${i}`}
-                width={Layout.productCardWidth}
-                height={290}
-                borderRadius={16}
-                style={styles.skeleton}
-              />
+              <ProductCardSkeleton key={`skeleton-${i}`} index={i} />
             ))}
-          </View>
+          </Animated.View>
         }
       />
     );
   }
 
+  // 2. Empty State
   const emptyComponent = (
-    <View style={styles.emptyContainer}>
+    <Animated.View entering={FadeIn.duration(400)} style={styles.emptyContainer}>
       <Text variant="4xl" style={styles.emptyEmoji}>🌿</Text>
       <Text variant="xl" weight="semiBold" style={styles.emptyTitle}>
         {t.product.noResults}
@@ -69,9 +84,10 @@ export function ProductGrid({
       <Text variant="md" color={theme.textSecondary} style={styles.emptySubtitle}>
         {language === 'he' ? 'נסה קטגוריה אחרת' : 'Try another category'}
       </Text>
-    </View>
+    </Animated.View>
   );
 
+  // 3. Populated Grid (with smooth loading overlay if refreshing/filtering)
   return (
     <FlatList
       key={products.length > 0 ? 'grid' : 'empty'}
@@ -80,13 +96,19 @@ export function ProductGrid({
       numColumns={2}
       contentContainerStyle={[styles.listContent, { paddingBottom: bottomPadding }]}
       columnWrapperStyle={products.length > 0 ? styles.columnWrapper : undefined}
-      ListHeaderComponent={header}
+      ListHeaderComponent={fullHeader}
       ListEmptyComponent={emptyComponent}
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
       showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
       renderItem={({ item, index }) => (
-        <ProductCard product={item} index={index} />
+        <Animated.View
+          entering={FadeInDown.delay(Math.min(index * 40, 240)).springify().damping(18)}
+          style={{ opacity: isLoading ? 0.6 : 1 }}
+        >
+          <ProductCard product={item} index={index} />
+        </Animated.View>
       )}
     />
   );
@@ -100,30 +122,24 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
     justifyContent: 'space-between',
   },
-  skeleton: {
-    marginBottom: Spacing.md,
-  },
   listContent: {
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.sm,
   },
   columnWrapper: {
     justifyContent: 'space-between',
-    gap: Spacing.md,
+    marginBottom: Spacing.md,
   },
   emptyContainer: {
-    justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: Spacing['6xl'],
-    paddingHorizontal: Spacing['2xl'],
+    paddingVertical: 60,
   },
   emptyEmoji: {
-    fontSize: 64,
-    marginBottom: Spacing.lg,
+    fontSize: 56,
+    marginBottom: Spacing.md,
   },
   emptyTitle: {
-    marginBottom: Spacing.sm,
-    textAlign: 'center',
+    marginBottom: Spacing.xs,
   },
   emptySubtitle: {
     textAlign: 'center',

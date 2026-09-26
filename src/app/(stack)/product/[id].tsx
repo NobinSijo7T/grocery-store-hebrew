@@ -23,6 +23,7 @@ import { RelatedProducts } from '@/components/product/RelatedProducts';
 import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { SmoothLoader } from '@/components/ui/SmoothLoader';
 import { Text } from '@/components/ui/Text';
 import { ThemedView } from '@/components/ui/ThemedView';
 
@@ -80,7 +81,11 @@ export default function ProductDetailScreen() {
   if (isLoading) {
     return (
       <ThemedView style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={theme.primary} />
+        <SmoothLoader
+          variant="fullscreen"
+          size="lg"
+          message={language === 'he' ? 'טוען פרטי מוצר טרי...' : 'Loading farm product details...'}
+        />
       </ThemedView>
     );
   }
