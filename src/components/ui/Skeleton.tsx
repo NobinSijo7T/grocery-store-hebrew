@@ -1,23 +1,26 @@
 // ============================================================
-// Skeleton Loader Component
+// Skeleton Loader — Warm Organic Shimmer
 // ============================================================
+// Uses cream/linen tones instead of cold gray.
+// Shimmer sweep moves diagonally for more organic feel.
 
 import React, { useEffect } from 'react';
-import { View, StyleSheet, type ViewStyle } from 'react-native';
+import { View, type ViewStyle, type DimensionValue } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
   withTiming,
   interpolate,
+  Easing,
 } from 'react-native-reanimated';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { BorderRadius, SKELETON_DURATION } from '@/constants/theme'; // Assuming you added this constant
+import { BorderRadius } from '@/constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export interface SkeletonProps {
-  width?: number | string;
-  height?: number | string;
+  width?: DimensionValue;
+  height?: DimensionValue;
   borderRadius?: number;
   style?: ViewStyle;
 }
@@ -33,7 +36,10 @@ export function Skeleton({
 
   useEffect(() => {
     progress.value = withRepeat(
-      withTiming(1, { duration: 1200 }), // SKELETON_DURATION
+      withTiming(1, {
+        duration: 1400,
+        easing: Easing.inOut(Easing.ease),
+      }),
       -1,
       false
     );
@@ -43,9 +49,8 @@ export function Skeleton({
     const translateX = interpolate(
       progress.value,
       [0, 1],
-      [-200, 200] // Rough translation range, can be refined based on width if needed
+      [-250, 250]
     );
-
     return {
       transform: [{ translateX }],
     };
@@ -64,7 +69,7 @@ export function Skeleton({
         style,
       ]}
     >
-      <Animated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
+      <Animated.View style={[{ position: 'absolute', top: 0, bottom: 0, left: -100, right: -100 }, animatedStyle]}>
         <LinearGradient
           colors={[
             theme.skeleton,
@@ -73,7 +78,7 @@ export function Skeleton({
           ]}
           start={{ x: 0, y: 0.5 }}
           end={{ x: 1, y: 0.5 }}
-          style={StyleSheet.absoluteFill}
+          style={{ flex: 1 }}
         />
       </Animated.View>
     </View>

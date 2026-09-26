@@ -8,15 +8,22 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_SUPABASE_URL": "https://mgtpfdmunnklomapdsub.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_Dy9J91cRPd9tCP4jVpOQ5w_ViqUkDXC"
+        "EXPO_PUBLIC_SUPABASE_URL": "https://gcihfcmnroxlxwuakvbm.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_-KWcVjJbR4TdX1hWVmkU1A_CLv3B7oU",
+        "NEXT_PUBLIC_SUPABASE_URL": "https://gcihfcmnroxlxwuakvbm.supabase.co",
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_-KWcVjJbR4TdX1hWVmkU1A_CLv3B7oU"
       }
     },
     "preview": {
       "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
       "env": {
-        "EXPO_PUBLIC_SUPABASE_URL": "https://mgtpfdmunnklomapdsub.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_Dy9J91cRPd9tCP4jVpOQ5w_ViqUkDXC"
+        "EXPO_PUBLIC_SUPABASE_URL": "https://gcihfcmnroxlxwuakvbm.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_-KWcVjJbR4TdX1hWVmkU1A_CLv3B7oU",
+        "NEXT_PUBLIC_SUPABASE_URL": "https://gcihfcmnroxlxwuakvbm.supabase.co",
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_-KWcVjJbR4TdX1hWVmkU1A_CLv3B7oU"
       }
     },
     "apk": {
@@ -25,15 +32,19 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_SUPABASE_URL": "https://mgtpfdmunnklomapdsub.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_Dy9J91cRPd9tCP4jVpOQ5w_ViqUkDXC"
+        "EXPO_PUBLIC_SUPABASE_URL": "https://gcihfcmnroxlxwuakvbm.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_-KWcVjJbR4TdX1hWVmkU1A_CLv3B7oU",
+        "NEXT_PUBLIC_SUPABASE_URL": "https://gcihfcmnroxlxwuakvbm.supabase.co",
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_-KWcVjJbR4TdX1hWVmkU1A_CLv3B7oU"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_SUPABASE_URL": "https://mgtpfdmunnklomapdsub.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_Dy9J91cRPd9tCP4jVpOQ5w_ViqUkDXC"
+        "EXPO_PUBLIC_SUPABASE_URL": "https://gcihfcmnroxlxwuakvbm.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_-KWcVjJbR4TdX1hWVmkU1A_CLv3B7oU",
+        "NEXT_PUBLIC_SUPABASE_URL": "https://gcihfcmnroxlxwuakvbm.supabase.co",
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_-KWcVjJbR4TdX1hWVmkU1A_CLv3B7oU"
       }
     }
   },

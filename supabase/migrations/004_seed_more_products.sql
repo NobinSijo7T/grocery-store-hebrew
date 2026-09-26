@@ -14,16 +14,16 @@ INSERT INTO products (category_id, name_he, slug, description_he, price, unit, s
 -- -------------------------
 INSERT INTO products (category_id, name_he, slug, description_he, price, unit, stock_qty, is_featured, image_url) VALUES
   ((SELECT id FROM categories WHERE slug = 'dried-fruits-nuts'), 'שקדים קלויים', 'roasted-almonds', 'שקדים קלויים ומומלחים קלות, 250 גרם', 24.90, 'חבילה', 150, true, 'https://images.unsplash.com/photo-1508061253366-f7da158b6d46?w=400'),
-  ((SELECT id FROM categories WHERE slug = 'dried-fruits-nuts'), 'אגוזי מלך', 'walnuts', 'אגוזי מלך טבעיים ואיכותיים, 200 גרם', 19.90, 'חבילה', 100, false, 'https://images.unsplash.com/photo-1590059942690-3b6038f28f09?w=400'),
-  ((SELECT id FROM categories WHERE slug = 'dried-fruits-nuts'), 'תמרים', 'dates', 'תמרי מג''הול עסיסיים, 500 גרם', 29.90, 'חבילה', 120, true, 'https://images.unsplash.com/photo-1596773516546-f949437145de?w=400');
+  ((SELECT id FROM categories WHERE slug = 'dried-fruits-nuts'), 'אגוזי מלך', 'walnuts', 'אגוזי מלך טבעיים ואיכותיים, 200 גרם', 19.90, 'חבילה', 100, false, 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400'),
+  ((SELECT id FROM categories WHERE slug = 'dried-fruits-nuts'), 'תמרים', 'dates', 'תמרי מג''הול עסיסיים, 500 גרם', 29.90, 'חבילה', 120, true, 'https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?w=400');
 
 -- -------------------------
 -- Products — Spices & Sauces (תבלינים ורטבים)
 -- -------------------------
 INSERT INTO products (category_id, name_he, slug, description_he, price, unit, stock_qty, is_featured, image_url) VALUES
-  ((SELECT id FROM categories WHERE slug = 'spices-sauces'), 'פלפל שחור גרוס', 'black-pepper', 'פלפל שחור גרוס, 100 גרם', 9.90, 'יחידה', 200, false, 'https://images.unsplash.com/photo-1596647271946-fdf09c310461?w=400'),
+  ((SELECT id FROM categories WHERE slug = 'spices-sauces'), 'פלפל שחור גרוס', 'black-pepper', 'פלפל שחור גרוס, 100 גרם', 9.90, 'יחידה', 200, false, 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=400'),
   ((SELECT id FROM categories WHERE slug = 'spices-sauces'), 'פפריקה מתוקה', 'sweet-paprika', 'פפריקה מתוקה איכותית, 100 גרם', 8.90, 'יחידה', 180, true, 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400'),
-  ((SELECT id FROM categories WHERE slug = 'spices-sauces'), 'רסק עגבניות', 'tomato-paste', 'רסק עגבניות טבעי, 250 גרם', 4.90, 'יחידה', 300, false, 'https://images.unsplash.com/photo-1579294970425-2e65c9c99153?w=400');
+  ((SELECT id FROM categories WHERE slug = 'spices-sauces'), 'רסק עגבניות', 'tomato-paste', 'רסק עגבניות טבעי, 250 גרם', 4.90, 'יחידה', 300, false, 'https://images.unsplash.com/photo-1534939561126-855b8675edd7?w=400');
 
 -- -------------------------
 -- Products — Bakery (מאפים ולחם)
@@ -36,4 +36,4 @@ INSERT INTO products (category_id, name_he, slug, description_he, price, unit, s
 -- -------------------------
 INSERT INTO products (category_id, name_he, slug, description_he, price, unit, stock_qty, is_featured, image_url) VALUES
   ((SELECT id FROM categories WHERE slug = 'meat-poultry'), 'סטייק אנטריקוט', 'entrecote-steak', 'סטייק אנטריקוט פרימיום מיושן', 139.90, 'ק"ג', 40, true, 'https://images.unsplash.com/photo-1600891964092-4316c288032e?w=400'),
-  ((SELECT id FROM categories WHERE slug = 'meat-poultry'), 'חלקי עוף למרק', 'chicken-soup-parts', 'חלקי עוף נבחרים למרק טעים ועשיר', 18.90, 'ק"ג', 80, false, 'https://images.unsplash.com/photo-1612966804561-399a9a5f22e7?w=400');
+  ((SELECT id FROM categories WHERE slug = 'meat-poultry'), 'חלקי עוף למרק', 'chicken-soup-parts', 'חלקי עוף נבחרים למרק טעים ועשיר', 18.90, 'ק"ג', 80, false, 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=400');

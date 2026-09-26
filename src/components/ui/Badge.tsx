@@ -1,6 +1,7 @@
 // ============================================================
-// Badge Component
+// Badge Component — Organic Label Pill
 // ============================================================
+// Earthy color palette — no harsh red/blue, only natural tones.
 
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
@@ -19,25 +20,25 @@ export function Badge({ label, variant = 'primary', style }: BadgeProps) {
 
   const getBackgroundColor = () => {
     switch (variant) {
-      case 'primary': return theme.primaryLight;
-      case 'secondary': return theme.secondaryLight;
-      case 'accent': return theme.accentLight;
-      case 'success': return '#D1FAE5'; // emerald-100
-      case 'warning': return '#FEF3C7'; // amber-100
-      case 'error': return '#FEE2E2';   // red-100
+      case 'primary': return theme.primaryLight;       // Sage green
+      case 'secondary': return theme.secondaryLight;   // Peachy
+      case 'accent': return theme.accentLight;         // Peach
+      case 'success': return theme.primaryLight;       // Morning dew green
+      case 'warning': return '#FFF3CD';                // Warm golden
+      case 'error': return theme.saleLight;            // Warm terracotta tint
       default: return theme.primaryLight;
     }
   };
 
   const getTextColor = () => {
     switch (variant) {
-      case 'primary': return theme.primaryDark;
+      case 'primary': return theme.primary;
       case 'secondary': return theme.secondary;
       case 'accent': return theme.accent;
       case 'success': return theme.success;
       case 'warning': return theme.warning;
-      case 'error': return theme.error;
-      default: return theme.primaryDark;
+      case 'error': return theme.sale;
+      default: return theme.primary;
     }
   };
 
@@ -49,7 +50,7 @@ export function Badge({ label, variant = 'primary', style }: BadgeProps) {
         style,
       ]}
     >
-      <Text variant="xs" weight="medium" color={getTextColor()}>
+      <Text variant="xs" weight="semiBold" color={getTextColor()}>
         {label}
       </Text>
     </View>
@@ -59,7 +60,7 @@ export function Badge({ label, variant = 'primary', style }: BadgeProps) {
 const styles = StyleSheet.create({
   badge: {
     paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: BorderRadius.full,
     alignSelf: 'flex-start',
   },

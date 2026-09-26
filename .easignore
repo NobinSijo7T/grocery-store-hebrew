@@ -1,0 +1,68 @@
+# EAS ignore file (overrides .gitignore during EAS build packaging)
+
+# dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native builds
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# OS files
+.DS_Store
+Thumbs.db
+*.pem
+
+# typescript
+*.tsbuildinfo
+example
+
+# generated native folders
+/ios
+/android
+
+# Logs
+*.log
+logs/
+
+# Scratch and test files
+scratch*
+*.jpg
+scratch_products/
+
+# IDE and AI agent skills/configs (contain symlinks on Windows that break shallow clone)
+.vscode/
+.idea/
+.agents/
+.claude/
+.cursor/
+.gemini/
+.kiro/
+.opencode/
+agent/
+skills-lock.json
+
+# Scratch and test files
+scratch*/
+*.jpg
+
+# Supabase CLI temp files
+supabase/.temp/

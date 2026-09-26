@@ -1,6 +1,8 @@
 // ============================================================
-// Home Screen
+// Home Screen — Farm Market Storefront
 // ============================================================
+// Warm cream header, organic search bar, farm brand identity,
+// rich hero banners, emoji category chips, staggered product grid.
 
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Image } from 'expo-image';
@@ -8,6 +10,7 @@ import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useMemo, useRef } from 'react';
 import { Alert, StyleSheet, Switch, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CategoryChips } from '@/components/home/CategoryChips';
@@ -38,18 +41,17 @@ export default function HomeScreen() {
   const settingsSheetRef = useRef<BottomSheetModal>(null);
   const { isDark, toggle } = useThemeStore();
   const { t, language, setLanguage } = useTranslation();
-  
+
   const customer = useAuthStore((s) => s.customer);
   const { categoryId, setCategory } = useFilterStore();
 
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { data: banners, isLoading: bannersLoading } = useBanners();
-  
-  // Memoize filters for useProducts hook
+
   const activeFilters = useMemo(() => ({ categoryId }), [categoryId]);
-  
-  const { 
-    data: products, 
+
+  const {
+    data: products,
     isLoading: productsLoading,
     refetch,
     isRefetching
@@ -57,14 +59,12 @@ export default function HomeScreen() {
 
   const handleBannerPress = (banner: Banner) => {
     if (banner.link_type === 'category' && banner.link_value) {
-      // Find category ID by slug if possible, or assume link_value is the ID/slug
       const targetCategory = categories?.find(c => c.slug === banner.link_value);
       if (targetCategory) {
         setCategory(targetCategory.id);
       }
     } else if (banner.link_type === 'product' && banner.link_value) {
-       // Search for the product by slug, then navigate
-       router.push(`/product/${banner.link_value}`); // We need to handle slug-based routing or map slug to ID
+      router.push(`/product/${banner.link_value}`);
     }
   };
 
@@ -77,9 +77,7 @@ export default function HomeScreen() {
   };
 
   const handleLanguageChange = (nextLanguage: Language) => {
-    if (nextLanguage === language) {
-      return;
-    }
+    if (nextLanguage === language) return;
 
     Alert.alert(
       language === 'he' ? 'שינוי שפה' : 'Change Language',
@@ -108,77 +106,139 @@ export default function HomeScreen() {
   const languageLabel = language === 'he' ? 'עברית' : 'English';
   const alternateLanguageLabel = language === 'he' ? 'English' : 'עברית';
 
+  const selectedCategoryName = categoryId
+    ? (language === 'he'
+      ? categories?.find(c => c.id === categoryId)?.name_he
+      : categories?.find(c => c.id === categoryId)?.name_en)
+    : t.home.featuredProducts;
+
   const renderHeader = () => (
     <View style={styles.headerContainer}>
-      {/* Search Bar - Fake input that navigates to search screen */}
-        <AnimatedPressable 
-          style={[styles.searchBar, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]} 
+      {/* Search Bar */}
+      <Animated.View entering={FadeInDown.delay(50).springify().damping(18).stiffness(80)}>
+        <AnimatedPressable
+          style={[
+            styles.searchBar,
+            {
+              backgroundColor: theme.surfaceElevated,
+              borderColor: theme.border,
+            },
+          ]}
           onPress={handleSearchPress}
+          scaleDown={0.98}
+          haptic
         >
-        <MaterialIcons name="search" size={24} color={theme.textTertiary} />
-        <Text variant="md" color={theme.textTertiary} style={styles.searchText}>
-          {t.home.searchPlaceholder}
-        </Text>
-      </AnimatedPressable>
+          <MaterialIcons name="search" size={22} color={theme.textTertiary} />
+          <Text variant="md" color={theme.textTertiary} style={styles.searchText}>
+            {t.home.searchPlaceholder}
+          </Text>
+          {/* Decorative leaf icon on the right end */}
+          <Text style={styles.searchLeaf}>🌿</Text>
+        </AnimatedPressable>
+      </Animated.View>
 
       {/* Hero Banner */}
       {!bannersLoading && banners && banners.length > 0 && (
-        <HeroBanner banners={banners} onPressBanner={handleBannerPress} />
+        <Animated.View entering={FadeInDown.delay(100).springify().damping(18).stiffness(70)}>
+          <HeroBanner banners={banners} onPressBanner={handleBannerPress} />
+        </Animated.View>
       )}
 
-      {/* Category Chips */}
+      {/* Category Section */}
       {!categoriesLoading && categories && (
-        <View style={styles.categoriesWrapper}>
-          <Text variant="xl" weight="semiBold" style={styles.sectionTitle}>
-            {t.home.categories}
+        <Animated.View
+          entering={FadeInDown.delay(150).springify().damping(18).stiffness(80)}
+          style={styles.categoriesWrapper}
+        >
+          <Text 
+            variant="lg" 
+            weight="semiBold" 
+            style={[styles.sectionTitle, { textAlign: language === 'he' ? 'right' : 'left' }]}
+          >
+            {language === 'he' ? 'קטגוריות' : 'Categories'}
           </Text>
           <CategoryChips
             categories={categories}
             selectedId={categoryId}
             onSelect={setCategory}
           />
-        </View>
+        </Animated.View>
       )}
 
-      {/* Title for Product Grid */}
-      <View style={styles.gridHeader}>
-        <Text variant="xl" weight="semiBold">
-          {categoryId ? categories?.find(c => c.id === categoryId)?.name_he : t.home.featuredProducts}
+      {/* Products section header */}
+      <Animated.View
+        entering={FadeInDown.delay(200).springify().damping(18).stiffness(80)}
+        style={styles.gridHeader}
+      >
+        <Text variant="lg" weight="semiBold">
+          {selectedCategoryName}
         </Text>
         {categoryId && (
-           <AnimatedPressable onPress={() => setCategory(undefined)}>
-             <Text variant="sm" weight="medium" color={theme.primary}>
-               {t.home.seeAll}
-             </Text>
-           </AnimatedPressable>
+          <AnimatedPressable onPress={() => setCategory(undefined)}>
+            <Text variant="sm" weight="semiBold" color={theme.primary}>
+              {t.home.seeAll}
+            </Text>
+          </AnimatedPressable>
         )}
-      </View>
+      </Animated.View>
     </View>
   );
 
   return (
     <ThemedView style={styles.container}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      
-      {/* Top Bar Area */}
-      <View style={[styles.topBar, { paddingTop: Math.max(insets.top, Spacing.md) }]}>
+
+      {/* Top Bar */}
+      <Animated.View
+        entering={FadeInDown.springify().damping(20).stiffness(80)}
+        style={[
+          styles.topBar,
+          {
+            paddingTop: Math.max(insets.top, Spacing.md),
+            borderBottomColor: theme.border,
+          },
+        ]}
+      >
+        {/* Logo */}
         <View style={{ flexDirection: 'row-reverse', alignItems: 'center' }}>
-          <Image source={require('../../../assets/images/logo.svg')} style={{ width: 140, height: 48 }} contentFit="contain" />
+          <Image
+            source={require('../../../assets/images/logo.svg')}
+            style={{ width: 140, height: 46 }}
+            contentFit="contain"
+          />
         </View>
+
+        {/* Right-side actions */}
         <View style={styles.topBarActions}>
-          <AnimatedPressable onPress={openSettings}>
-            <View style={[styles.iconButton, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
-              <MaterialIcons name="settings" size={22} color={theme.text} />
+          {/* Settings */}
+          <AnimatedPressable onPress={openSettings} scaleDown={0.92} haptic>
+            <View
+              style={[
+                styles.iconButton,
+                {
+                  backgroundColor: theme.surfaceElevated,
+                  borderColor: theme.border,
+                },
+              ]}
+            >
+              <MaterialIcons name="tune" size={20} color={theme.text} />
             </View>
           </AnimatedPressable>
-          <AnimatedPressable onPress={() => router.push('/account')}>
-             <View style={[styles.avatar, { backgroundColor: theme.primaryLight }]}>
-               <MaterialIcons name="person" size={24} color={theme.primaryDark} />
-             </View>
+
+          {/* Avatar */}
+          <AnimatedPressable
+            onPress={() => router.push('/account')}
+            scaleDown={0.92}
+            haptic
+          >
+            <View style={[styles.avatar, { backgroundColor: theme.primaryLight }]}>
+              <MaterialIcons name="person" size={22} color={theme.primary} />
+            </View>
           </AnimatedPressable>
         </View>
-      </View>
+      </Animated.View>
 
+      {/* Product Grid */}
       <View style={{ flex: 1 }}>
         <ProductGrid
           products={products || []}
@@ -187,8 +247,10 @@ export default function HomeScreen() {
         />
       </View>
 
-      <BottomSheet ref={settingsSheetRef} snapPoints={['42%']} scrollable={false}>
+      {/* Settings Bottom Sheet */}
+      <BottomSheet ref={settingsSheetRef} snapPoints={['44%']} scrollable={false}>
         <View style={styles.sheetContent}>
+          {/* Sheet handle area title */}
           <View style={styles.sheetHeader}>
             <Text variant="xl" weight="bold">
               {t.account.settings}
@@ -200,34 +262,60 @@ export default function HomeScreen() {
             </Text>
           </View>
 
-          <View style={[styles.settingsCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
-            <View style={[styles.settingRow, { borderBottomColor: theme.borderLight }]}>
+          {/* Settings Card */}
+          <View
+            style={[
+              styles.settingsCard,
+              {
+                backgroundColor: theme.surfaceElevated,
+                borderColor: theme.border,
+              },
+            ]}
+          >
+            {/* Language */}
+            <View style={[styles.settingRow, { borderBottomColor: theme.border }]}>
               <View style={styles.settingText}>
-                <Text variant="md" weight="semiBold">{language === 'he' ? 'שפה' : 'Language'}</Text>
-                <Text variant="sm" color={theme.textSecondary}>{languageLabel}</Text>
+                <Text variant="md" weight="semiBold">
+                  {language === 'he' ? 'שפה' : 'Language'}
+                </Text>
+                <Text variant="sm" color={theme.textSecondary}>
+                  {languageLabel}
+                </Text>
               </View>
               <AnimatedPressable
                 onPress={() => handleLanguageChange(language === 'he' ? 'en' : 'he')}
-                style={[styles.settingAction, { backgroundColor: theme.primaryLight }]}
+                style={[
+                  styles.settingAction,
+                  { backgroundColor: theme.primaryLight },
+                ]}
               >
-                <Text variant="sm" weight="semiBold" color={theme.primaryDark}>
+                <Text variant="sm" weight="semiBold" color={theme.primary}>
                   {alternateLanguageLabel}
                 </Text>
               </AnimatedPressable>
             </View>
 
-            <View style={[styles.settingRow, { borderBottomColor: theme.borderLight }]}>
+            {/* Dark Mode */}
+            <View style={[styles.settingRow, { borderBottomColor: theme.border }]}>
               <View style={styles.settingText}>
-                <Text variant="md" weight="semiBold">{t.account.darkMode}</Text>
+                <Text variant="md" weight="semiBold">
+                  {t.account.darkMode}
+                </Text>
                 <Text variant="sm" color={theme.textSecondary}>
                   {isDark
-                    ? language === 'he' ? 'ערכת צבעים כהה פעילה' : 'Dark appearance is active'
-                    : language === 'he' ? 'ערכת צבעים בהירה פעילה' : 'Light appearance is active'}
+                    ? language === 'he' ? 'מצב לילה פעיל' : 'Night mode active'
+                    : language === 'he' ? 'מצב יום פעיל' : 'Day mode active'}
                 </Text>
               </View>
-              <Switch value={isDark} onValueChange={toggle} trackColor={{ true: theme.primary }} />
+              <Switch
+                value={isDark}
+                onValueChange={toggle}
+                trackColor={{ true: theme.primary, false: theme.border }}
+                thumbColor={isDark ? '#FFFFFF' : '#FFFFFF'}
+              />
             </View>
 
+            {/* More settings */}
             <AnimatedPressable
               onPress={() => {
                 settingsSheetRef.current?.dismiss();
@@ -264,6 +352,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.md,
+    borderBottomWidth: 0, // No divider — let the cream flow
   },
   topBarActions: {
     flexDirection: 'row',
@@ -276,6 +365,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
   },
   iconButton: {
     width: 40,
@@ -286,30 +376,33 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   headerContainer: {
-    paddingBottom: Spacing.md,
+    paddingBottom: Spacing.sm,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing.md,
-    height: 48,
-    borderRadius: 24,
+    paddingHorizontal: Spacing.lg,
+    height: 50,
+    borderRadius: BorderRadius.full,
     borderWidth: 1,
     marginHorizontal: Spacing.lg,
     marginBottom: Spacing.lg,
+    gap: Spacing.sm,
   },
   searchText: {
-    marginLeft: Spacing.sm,
     flex: 1,
     textAlign: 'right', // RTL
   },
+  searchLeaf: {
+    fontSize: 16,
+    opacity: 0.6,
+  },
   categoriesWrapper: {
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
   },
   sectionTitle: {
     paddingHorizontal: Spacing.lg,
-    marginBottom: Spacing.sm,
-    textAlign: 'right', // RTL
+    marginBottom: Spacing.xs,
   },
   gridHeader: {
     flexDirection: 'row',
@@ -334,7 +427,7 @@ const styles = StyleSheet.create({
     ...Shadows.sm,
   },
   settingRow: {
-    minHeight: 72,
+    minHeight: 70,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -344,7 +437,7 @@ const styles = StyleSheet.create({
   },
   settingText: {
     flex: 1,
-    marginRight: Spacing.md,
+    marginEnd: Spacing.md,
   },
   settingAction: {
     paddingHorizontal: Spacing.md,

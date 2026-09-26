@@ -1,15 +1,17 @@
 // ============================================================
-// OrderTimeline Component
+// OrderTimeline Component — Farm Dispatch Progress
 // ============================================================
+// Visual progress of produce harvest, sorting, packing & delivery
+// with warm earthy status nodes and spring animations.
 
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from '../ui/Text';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTranslation } from '@/hooks/useTranslation';
-import { Spacing } from '@/constants/theme';
+import { BorderRadius, Spacing } from '@/constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
-import Animated, { FadeInRight } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 interface OrderTimelineProps {
   status: string;
@@ -17,31 +19,31 @@ interface OrderTimelineProps {
 
 export function OrderTimeline({ status }: OrderTimelineProps) {
   const theme = useThemeColor();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const isRTL = language === 'he';
+  const flexDirection = isRTL ? 'row-reverse' : 'row';
+
   const timelineSteps = [
-    { id: 'pending', icon: 'schedule', label: t.order.statuses.pending },
-    { id: 'confirmed', icon: 'check-circle', label: t.order.statuses.confirmed },
-    { id: 'packing', icon: 'inventory-2', label: t.order.statuses.packing },
-    { id: 'out_for_delivery', icon: 'local-shipping', label: t.order.statuses.out_for_delivery },
-    { id: 'delivered', icon: 'home', label: t.order.statuses.delivered },
+    { id: 'pending', icon: 'schedule', label: t.order.statuses.pending, farmSub: isRTL ? 'ההזמנה התקבלה במערכת' : 'Order received' },
+    { id: 'confirmed', icon: 'eco', label: t.order.statuses.confirmed, farmSub: isRTL ? 'אושר לליקוט מהמטעים' : 'Confirmed for picking' },
+    { id: 'packing', icon: 'inventory-2', label: t.order.statuses.packing, farmSub: isRTL ? 'נארז בקפידה בסלסילת המשק' : 'Packed in farm crate' },
+    { id: 'out_for_delivery', icon: 'local-shipping', label: t.order.statuses.out_for_delivery, farmSub: isRTL ? 'השליח בדרך אליכם' : 'Courier on the way' },
+    { id: 'delivered', icon: 'home', label: t.order.statuses.delivered, farmSub: isRTL ? 'התוצרת הגיעה לדלתכם' : 'Delivered fresh' },
   ];
 
-  // Determine current step index
   let currentIndex = timelineSteps.findIndex((step) => step.id === status);
-  
-  // Handle cancelled state specially
+
   if (status === 'cancelled') {
     return (
-      <View style={[styles.cancelledContainer, { backgroundColor: theme.error + '20' }]}>
-        <MaterialIcons name="cancel" size={32} color={theme.error} style={{ marginBottom: 8 }} />
-        <Text variant="lg" weight="bold" color={theme.error}>
+      <View style={[styles.cancelledContainer, { backgroundColor: '#FEE2E2' }]}>
+        <MaterialIcons name="cancel" size={36} color="#DC2626" style={{ marginBottom: 6 }} />
+        <Text variant="lg" weight="bold" color="#DC2626">
           {t.order.statuses.cancelled}
         </Text>
       </View>
     );
   }
 
-  // If status not found, assume pending
   if (currentIndex === -1) currentIndex = 0;
 
   return (
@@ -51,59 +53,73 @@ export function OrderTimeline({ status }: OrderTimelineProps) {
         const isCurrent = index === currentIndex;
         const isLast = index === timelineSteps.length - 1;
 
-        let iconColor = theme.border;
+        let dotBg = theme.borderLight;
+        let iconColor = theme.textTertiary;
         let textColor = theme.textTertiary;
-        
+
         if (isCompleted) {
-          iconColor = theme.primary;
+          dotBg = theme.primary;
+          iconColor = '#FFFFFF';
           textColor = theme.textSecondary;
         } else if (isCurrent) {
-          iconColor = theme.primary;
+          dotBg = theme.primaryDark;
+          iconColor = '#FFFFFF';
           textColor = theme.primaryDark;
         }
 
         return (
-          <Animated.View 
-            key={step.id} 
-            entering={FadeInRight.delay(index * 150)}
-            style={styles.stepContainer}
+          <Animated.View
+            key={step.id}
+            entering={FadeInDown.delay(index * 60).springify()}
+            style={[styles.stepContainer, { flexDirection }]}
           >
-            {/* Dot & Line (RTL: items flow right-to-left, so line is on left) */}
+            {/* Dot & Connecting line */}
             <View style={styles.indicatorContainer}>
-              <View 
+              <View
                 style={[
-                  styles.dot, 
-                  { 
-                    backgroundColor: isCompleted || isCurrent ? theme.primary : theme.surfaceElevated,
-                    borderColor: isCompleted || isCurrent ? theme.primary : theme.border,
-                  }
+                  styles.dot,
+                  {
+                    backgroundColor: dotBg,
+                    borderColor: isCurrent ? theme.primaryLight : 'transparent',
+                    borderWidth: isCurrent ? 3 : 0,
+                  },
                 ]}
               >
-                <MaterialIcons 
-                  name={step.icon as any} 
-                  size={16} 
-                  color={isCompleted || isCurrent ? '#FFFFFF' : theme.border} 
+                <MaterialIcons
+                  name={step.icon as any}
+                  size={16}
+                  color={iconColor}
                 />
               </View>
-              
+
               {!isLast && (
-                <View 
+                <View
                   style={[
-                    styles.line, 
-                    { backgroundColor: isCompleted ? theme.primary : theme.border }
-                  ]} 
+                    styles.line,
+                    {
+                      backgroundColor: isCompleted ? theme.primary : theme.border,
+                    },
+                  ]}
                 />
               )}
             </View>
 
-            {/* Content */}
-            <View style={styles.contentContainer}>
-              <Text 
-                variant="md" 
-                weight={isCurrent ? 'bold' : 'medium'} 
+            {/* Step label & subtitle */}
+            <View
+              style={[
+                styles.contentContainer,
+                isRTL ? { paddingRight: Spacing.md } : { paddingLeft: Spacing.md },
+              ]}
+            >
+              <Text
+                variant="md"
+                weight={isCurrent ? 'bold' : isCompleted ? 'semiBold' : 'regular'}
                 color={textColor}
               >
                 {step.label}
+              </Text>
+              <Text variant="xs" color={theme.textTertiary} style={{ marginTop: 2 }}>
+                {step.farmSub}
               </Text>
             </View>
           </Animated.View>
@@ -115,12 +131,11 @@ export function OrderTimeline({ status }: OrderTimelineProps) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: Spacing.md,
+    paddingVertical: Spacing.xs,
   },
   stepContainer: {
-    flexDirection: 'row-reverse', // RTL Support
     alignItems: 'flex-start',
-    minHeight: 60,
+    minHeight: 56,
   },
   indicatorContainer: {
     alignItems: 'center',
@@ -130,7 +145,6 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 2,
@@ -138,18 +152,17 @@ const styles = StyleSheet.create({
   line: {
     width: 2,
     flex: 1,
-    minHeight: 28, // Matches minHeight of container - dot height
-    marginVertical: -2, // Slight overlap
+    minHeight: 24,
+    marginVertical: 2,
     zIndex: 1,
   },
   contentContainer: {
     flex: 1,
-    paddingTop: 6,
-    paddingRight: Spacing.md, // Spacing from the dot (RTL)
+    paddingTop: 4,
   },
   cancelledContainer: {
     padding: Spacing.xl,
-    borderRadius: Spacing.md,
+    borderRadius: BorderRadius.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -45,6 +45,8 @@ example
 
 # Large image files and generated assets
 *.png
+*.jpg
+scratch*
 !assets/images/icon.png
 !assets/images/favicon.png
 !assets/images/splash-icon.png
@@ -61,3 +63,16 @@ logs/
 
 # OS files
 Thumbs.db
+# Supabase CLI temp files
+supabase/.temp/
+
+# AI skills and configs
+.agents/
+.claude/
+.codex/
+.cursor/
+.gemini/
+.kiro/
+.opencode/
+agent/
+skills-lock.json

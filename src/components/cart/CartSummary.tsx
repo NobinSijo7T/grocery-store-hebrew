@@ -7,7 +7,7 @@ import { View, StyleSheet } from 'react-native';
 import { Text } from '../ui/Text';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTranslation } from '@/hooks/useTranslation';
-import { BorderRadius, Spacing } from '@/constants/theme';
+import { BorderRadius, Shadows, Spacing } from '@/constants/theme';
 import { formatPrice } from '@/utils/format';
 import { ENV } from '@/lib/env';
 
@@ -31,7 +31,7 @@ export function CartSummary({
   const amountToFreeDelivery = ENV.FREE_DELIVERY_THRESHOLD - subtotal;
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+    <View style={[styles.container, { backgroundColor: theme.surfaceElevated, ...Shadows.sm, shadowColor: theme.shadowColor }]}>
       
       {/* Progress to Free Delivery */}
       {!isFreeDelivery && amountToFreeDelivery > 0 && (
@@ -98,7 +98,6 @@ export function CartSummary({
 const styles = StyleSheet.create({
   container: {
     padding: Spacing.lg,
-    borderWidth: 1,
     borderRadius: BorderRadius.lg,
     marginBottom: Spacing.xl,
   },

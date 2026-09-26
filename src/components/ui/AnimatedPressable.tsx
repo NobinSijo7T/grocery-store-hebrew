@@ -1,6 +1,8 @@
 // ============================================================
-// AnimatedPressable — Smooth Tap Feedback
+// AnimatedPressable — Organic Tap Feedback
 // ============================================================
+// Spring-physics press: scale down on press, spring back on release.
+// Paired with haptic feedback for a physical, alive feeling.
 
 import React, { useCallback } from 'react';
 import { Pressable, type PressableProps, type ViewStyle, type StyleProp } from 'react-native';
@@ -8,6 +10,7 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { SPRING_CONFIGS } from '@/utils/animations';
@@ -18,13 +21,15 @@ interface AnimatedPressableProps extends Omit<PressableProps, 'style'> {
   style?: StyleProp<ViewStyle>;
   scaleDown?: number;
   haptic?: boolean;
+  hapticStyle?: 'light' | 'medium' | 'heavy';
   children: React.ReactNode;
 }
 
 export function AnimatedPressable({
   style,
-  scaleDown = 0.97,
+  scaleDown = 0.96,
   haptic = true,
+  hapticStyle = 'light',
   onPressIn,
   onPressOut,
   onPress,
@@ -39,6 +44,7 @@ export function AnimatedPressable({
 
   const handlePressIn = useCallback(
     (e: any) => {
+      // Snap down with a snappy spring for immediate feedback
       scale.value = withSpring(scaleDown, SPRING_CONFIGS.snappy);
       onPressIn?.(e);
     },
@@ -47,6 +53,7 @@ export function AnimatedPressable({
 
   const handlePressOut = useCallback(
     (e: any) => {
+      // Spring back with gentle overshoot — feels elastic and alive
       scale.value = withSpring(1, SPRING_CONFIGS.gentle);
       onPressOut?.(e);
     },
@@ -56,11 +63,17 @@ export function AnimatedPressable({
   const handlePress = useCallback(
     (e: any) => {
       if (haptic) {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        const style =
+          hapticStyle === 'medium'
+            ? Haptics.ImpactFeedbackStyle.Medium
+            : hapticStyle === 'heavy'
+            ? Haptics.ImpactFeedbackStyle.Heavy
+            : Haptics.ImpactFeedbackStyle.Light;
+        Haptics.impactAsync(style);
       }
       onPress?.(e);
     },
-    [haptic, onPress]
+    [haptic, hapticStyle, onPress]
   );
 
   return (

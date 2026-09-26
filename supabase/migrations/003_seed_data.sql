@@ -22,7 +22,7 @@ INSERT INTO categories (name_he, slug, icon, sort_order) VALUES
 -- Products — Vegetables (ירקות)
 -- -------------------------
 INSERT INTO products (category_id, name_he, slug, description_he, price, unit, stock_qty, is_featured, image_url) VALUES
-  ((SELECT id FROM categories WHERE slug = 'vegetables'), 'עגבניות שרי', 'cherry-tomatoes', 'עגבניות שרי טריות ומתוקות, גידול מקומי', 12.90, 'ק"ג', 150, true, 'https://images.unsplash.com/photo-1546470427-0d4db154ceb8?w=400'),
+  ((SELECT id FROM categories WHERE slug = 'vegetables'), 'עגבניות שרי', 'cherry-tomatoes', 'עגבניות שרי טריות ומתוקות, גידול מקומי', 12.90, 'ק"ג', 150, true, 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400'),
   ((SELECT id FROM categories WHERE slug = 'vegetables'), 'מלפפונים', 'cucumbers', 'מלפפונים ירוקים ופריכים', 6.90, 'ק"ג', 200, false, 'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?w=400'),
   ((SELECT id FROM categories WHERE slug = 'vegetables'), 'פלפל אדום', 'red-pepper', 'פלפל אדום מתוק, מושלם לסלט ולבישול', 14.90, 'ק"ג', 100, true, 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=400'),
   ((SELECT id FROM categories WHERE slug = 'vegetables'), 'בצל יבש', 'onions', 'בצל יבש איכותי לבישול יומיומי', 5.90, 'ק"ג', 300, false, 'https://images.unsplash.com/photo-1518977956812-cd3dbadaaf31?w=400'),
@@ -53,7 +53,7 @@ INSERT INTO products (category_id, name_he, slug, description_he, price, unit, s
 -- Products — Meat & Poultry (בשר ועוף)
 -- -------------------------
 INSERT INTO products (category_id, name_he, slug, description_he, price, unit, stock_qty, is_featured, image_url) VALUES
-  ((SELECT id FROM categories WHERE slug = 'meat-poultry'), 'חזה עוף טרי', 'chicken-breast', 'חזה עוף טרי ואיכותי, ללא עצמות', 39.90, 'ק"ג', 100, true, 'https://images.unsplash.com/photo-1604503468506-a8da13d82571?w=400'),
+  ((SELECT id FROM categories WHERE slug = 'meat-poultry'), 'חזה עוף טרי', 'chicken-breast', 'חזה עוף טרי ואיכותי, ללא עצמות', 39.90, 'ק"ג', 100, true, 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400'),
   ((SELECT id FROM categories WHERE slug = 'meat-poultry'), 'כרעיים עוף', 'chicken-drumsticks', 'כרעיים עוף טריות', 24.90, 'ק"ג', 120, false, 'https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=400'),
   ((SELECT id FROM categories WHERE slug = 'meat-poultry'), 'בשר טחון', 'ground-beef', 'בשר בקר טחון טרי', 59.90, 'ק"ג', 80, true, 'https://images.unsplash.com/photo-1602470520998-f4a52199a3d6?w=400');
 
@@ -62,7 +62,7 @@ INSERT INTO products (category_id, name_he, slug, description_he, price, unit, s
 -- -------------------------
 INSERT INTO products (category_id, name_he, slug, description_he, price, unit, stock_qty, is_featured, image_url) VALUES
   ((SELECT id FROM categories WHERE slug = 'bakery'), 'לחם מחיטה מלאה', 'whole-wheat-bread', 'לחם מחיטה מלאה טרי, אפייה יומית', 14.90, 'יחידה', 100, false, 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400'),
-  ((SELECT id FROM categories WHERE slug = 'bakery'), 'חלה לשבת', 'challah', 'חלה מקולעת טרייה לשבת', 18.90, 'יחידה', 60, true, 'https://images.unsplash.com/photo-1603379016822-e6d5e2770ece?w=400'),
+  ((SELECT id FROM categories WHERE slug = 'bakery'), 'חלה לשבת', 'challah', 'חלה מקולעת טרייה לשבת', 18.90, 'יחידה', 60, true, 'https://images.unsplash.com/photo-1589367920969-ab8e050bbb04?w=400'),
   ((SELECT id FROM categories WHERE slug = 'bakery'), 'פיתות', 'pita-bread', 'פיתות טריות, חבילת 6 יחידות', 9.90, 'חבילה', 150, false, 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=400');
 
 -- -------------------------
@@ -78,7 +78,7 @@ INSERT INTO products (category_id, name_he, slug, description_he, price, unit, d
 -- -------------------------
 INSERT INTO products (category_id, name_he, slug, description_he, price, unit, stock_qty, is_featured, is_organic, image_url) VALUES
   ((SELECT id FROM categories WHERE slug = 'eggs-legumes'), 'ביצים חופש', 'free-range-eggs', 'ביצים מתרנגולות חופשיות, תבנית 12', 22.90, 'תבנית', 100, true, true, 'https://images.unsplash.com/photo-1518569656558-1f25e69d93d7?w=400'),
-  ((SELECT id FROM categories WHERE slug = 'eggs-legumes'), 'חומוס יבש', 'dried-chickpeas', 'חומוס יבש איכותי, 500 גרם', 11.90, 'חבילה', 200, false, false, 'https://images.unsplash.com/photo-1515543904323-bce17976f9d5?w=400'),
+  ((SELECT id FROM categories WHERE slug = 'eggs-legumes'), 'חומוס יבש', 'dried-chickpeas', 'חומוס יבש איכותי, 500 גרם', 11.90, 'חבילה', 200, false, false, 'https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=400'),
   ((SELECT id FROM categories WHERE slug = 'eggs-legumes'), 'עדשים אדומות', 'red-lentils', 'עדשים אדומות, 500 גרם', 13.90, 'חבילה', 180, false, false, 'https://images.unsplash.com/photo-1610725664285-7c57e6eeac3f?w=400');
 
 -- -------------------------

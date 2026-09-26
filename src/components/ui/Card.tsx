@@ -1,6 +1,8 @@
 // ============================================================
-// Card Component
+// Card Component — Organic Farm Surface
 // ============================================================
+// Warm cream background, soft green-tinted shadow, rounded corners
+// that feel hand-carved. No harsh 1px border under shadow.
 
 import React from 'react';
 import { View, StyleSheet, type ViewProps } from 'react-native';
@@ -29,7 +31,6 @@ export function Card({
     styles.card,
     {
       backgroundColor: theme.card,
-      borderColor: theme.borderLight,
       padding: padding ? Spacing.md : 0,
     },
     elevated ? Shadows.sm : undefined,
@@ -38,7 +39,7 @@ export function Card({
 
   if (onPress) {
     return (
-      <AnimatedPressable style={cardStyle} onPress={onPress} {...(props as any)}>
+      <AnimatedPressable style={cardStyle} onPress={onPress} scaleDown={0.975} {...(props as any)}>
         {children}
       </AnimatedPressable>
     );
@@ -54,7 +55,7 @@ export function Card({
 const styles = StyleSheet.create({
   card: {
     borderRadius: BorderRadius.lg,
-    borderWidth: 1,
     overflow: 'hidden',
+    // Elevation declared once via shadow, no border to avoid ghost-card effect
   },
 });

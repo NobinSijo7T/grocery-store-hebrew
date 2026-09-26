@@ -1,5 +1,5 @@
 // ============================================================
-// RelatedProducts Component
+// RelatedProducts Component — Fresh Farm Recommendations
 // ============================================================
 
 import React from 'react';
@@ -8,7 +8,8 @@ import { Text } from '../ui/Text';
 import { ProductCard } from './ProductCard';
 import { Skeleton } from '../ui/Skeleton';
 import { useProducts } from '@/hooks/useProducts';
-import { HE } from '@/constants/hebrew';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useThemeColor } from '@/hooks/useThemeColor';
 import { Spacing, Layout } from '@/constants/theme';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 import { staggerDelay } from '@/utils/animations';
@@ -19,6 +20,10 @@ interface RelatedProductsProps {
 }
 
 export function RelatedProducts({ categoryId, currentProductId }: RelatedProductsProps) {
+  const { t, language } = useTranslation();
+  const theme = useThemeColor();
+  const isRTL = language === 'he';
+
   // Fetch up to 10 products from the same category
   const { data: products, isLoading } = useProducts({ categoryId, sort: 'popular' });
 
@@ -31,31 +36,35 @@ export function RelatedProducts({ categoryId, currentProductId }: RelatedProduct
 
   return (
     <View style={styles.container}>
-      <Text variant="lg" weight="bold" style={styles.title}>
-        {HE.product.relatedProducts}
-      </Text>
-      
+      <View style={[styles.headerRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+        <Text variant="xl" weight="bold" color={theme.text}>
+          {t.product.relatedProducts || (isRTL ? 'אולי תאהב גם' : 'You May Also Like')}
+        </Text>
+        <Text style={{ fontSize: 18 }}>🌱</Text>
+      </View>
+
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
       >
         {isLoading
           ? Array.from({ length: 3 }).map((_, i) => (
               <Skeleton
                 key={`skeleton-${i}`}
                 width={Layout.productCardWidth}
-                height={280}
-                style={styles.skeleton}
+                height={290}
+                borderRadius={16}
+                style={isRTL ? { marginLeft: Spacing.md } : { marginRight: Spacing.md }}
               />
             ))
           : related.map((product, index) => (
               <Animated.View
                 key={product.id}
-                entering={FadeInRight.delay(staggerDelay(index, 50))}
-                style={styles.cardWrapper}
+                entering={FadeInRight.delay(staggerDelay(index, 60)).springify()}
+                style={isRTL ? { marginLeft: Spacing.md } : { marginRight: Spacing.md }}
               >
-                <ProductCard product={product} />
+                <ProductCard product={product} index={index} />
               </Animated.View>
             ))}
       </ScrollView>
@@ -67,19 +76,13 @@ const styles = StyleSheet.create({
   container: {
     marginVertical: Spacing.xl,
   },
-  title: {
+  headerRow: {
     paddingHorizontal: Spacing.lg,
     marginBottom: Spacing.md,
-    textAlign: 'right', // RTL
+    alignItems: 'center',
+    gap: Spacing.xs,
   },
   scrollContent: {
     paddingHorizontal: Spacing.lg,
-    gap: Spacing.md,
-  },
-  cardWrapper: {
-    marginRight: Spacing.md,
-  },
-  skeleton: {
-    marginRight: Spacing.md,
   },
 });

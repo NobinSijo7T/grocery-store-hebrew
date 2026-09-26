@@ -129,7 +129,9 @@ export interface Delivery {
 export interface Banner {
   id: string;
   title_he: string;
+  title_en?: string | null;
   subtitle_he: string | null;
+  subtitle_en?: string | null;
   image_url: string | null;
   link_type: 'category' | 'product' | 'offer' | 'none';
   link_value: string | null;

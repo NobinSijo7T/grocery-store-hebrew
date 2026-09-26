@@ -1,13 +1,21 @@
 // ============================================================
-// Input Component
+// Input Component — Organic Farm Form Field
 // ============================================================
 
-import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, type TextInputProps } from 'react-native';
-import { Text } from './Text';
+import { BorderRadius, Shadows, Spacing, Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { BorderRadius, Spacing, Typography } from '@/constants/theme';
+import { useTranslation } from '@/hooks/useTranslation';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRef, useState } from 'react';
+import {
+    Pressable,
+    StyleSheet,
+    TextInput,
+    type NativeSyntheticEvent,
+    type TextInputFocusEventData,
+    type TextInputProps,
+} from 'react-native';
+import { Text } from './Text';
 
 export interface InputProps extends TextInputProps {
   label?: string;
@@ -22,91 +30,121 @@ export function Input({
   style,
   onFocus,
   onBlur,
+  textAlign: customTextAlign,
+  editable = true,
   ...props
 }: InputProps) {
   const theme = useThemeColor();
+  const { language } = useTranslation();
   const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<TextInput>(null);
 
-  const handleFocus = (e: any) => {
+  const isRTL = language === 'he';
+  const resolvedTextAlign = customTextAlign || (isRTL ? 'right' : 'left');
+
+  const handleFocus: TextInputProps['onFocus'] = (e) => {
     setIsFocused(true);
     onFocus?.(e);
   };
 
-  const handleBlur = (e: any) => {
+  const handleBlur: TextInputProps['onBlur'] = (e) => {
     setIsFocused(false);
     onBlur?.(e);
   };
 
+  // Programmatic focus — ensures taps on any part of the container still
+  // focus the TextInput even if gesture-handler overlays are intercepting.
+  const focusInput = () => {
+    if (!editable) return;
+    inputRef.current?.focus();
+  };
+
   return (
-    <View style={styles.wrapper}>
+    <Pressable style={styles.wrapper} onPress={focusInput}>
       {label && (
-        <Text variant="sm" weight="medium" style={styles.label}>
+        <Text
+          variant="sm"
+          weight="semiBold"
+          color={isFocused ? theme.primary : theme.text}
+          style={[styles.label, { textAlign: resolvedTextAlign }]}
+        >
           {label}
         </Text>
       )}
-      
-      <View
-        style={[
+
+      <Pressable
+        onPress={focusInput}
+        style={({ pressed }) => [
           styles.inputContainer,
           {
             backgroundColor: theme.surfaceElevated,
             borderColor: error ? theme.error : isFocused ? theme.primary : theme.border,
+            borderWidth: isFocused || error ? 1.5 : 1,
+            opacity: pressed && editable ? 0.95 : 1,
+            ...(isFocused ? Shadows.sm : {}),
+            shadowColor: isFocused ? theme.primary : undefined,
+            flexDirection: isRTL ? 'row-reverse' : 'row',
           },
         ]}
       >
         {icon && (
           <MaterialIcons
             name={icon}
-            size={20}
-            color={isFocused ? theme.primary : theme.textTertiary}
-            style={styles.icon}
+            size={22}
+            color={error ? theme.error : isFocused ? theme.primary : theme.textTertiary}
+            style={isRTL ? { marginLeft: Spacing.sm } : { marginRight: Spacing.sm }}
           />
         )}
-        
+
         <TextInput
+          ref={inputRef}
+          {...props}
+          editable={editable}
           style={[
             styles.input,
             {
               color: theme.text,
               fontFamily: Typography.fontFamily.regular,
               fontSize: Typography.fontSize.md,
+              textAlign: resolvedTextAlign,
             },
             style,
           ]}
           placeholderTextColor={theme.textTertiary}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          textAlign="right" // Force RTL alignment for input text
-          {...props}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardAppearance={theme.text === '#FEFEF7' ? 'dark' : 'light'}
+          pointerEvents={editable ? 'auto' : 'none'}
         />
-      </View>
+      </Pressable>
 
       {error && (
-        <Text variant="xs" color={theme.error} style={styles.error}>
+        <Text
+          variant="xs"
+          color={theme.error}
+          style={[styles.error, { textAlign: resolvedTextAlign }]}
+        >
           {error}
         </Text>
       )}
-    </View>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.lg,
   },
   label: {
     marginBottom: Spacing.xs,
   },
   inputContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: BorderRadius.md,
-    height: 48,
+    borderRadius: BorderRadius.lg,
+    height: 52,
     paddingHorizontal: Spacing.md,
-  },
-  icon: {
-    marginEnd: Spacing.sm,
   },
   input: {
     flex: 1,

@@ -1,9 +1,9 @@
 // ============================================================
-// Login Screen
+// Login Screen — Farm Member Sign-In
 // ============================================================
 
 import { router } from 'expo-router';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -13,35 +13,51 @@ import { Input } from '@/components/ui/Input';
 import { Text } from '@/components/ui/Text';
 import { ThemedView } from '@/components/ui/ThemedView';
 
-import { HE } from '@/constants/hebrew';
-import { Spacing } from '@/constants/theme';
+import { BorderRadius, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { useTranslation } from '@/hooks/useTranslation';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import * as Haptics from 'expo-haptics';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
   const theme = useThemeColor();
   const { signIn } = useAuth();
-  
+  const { t, language } = useTranslation();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const isRTL = language === 'he';
+  const textAlign = isRTL ? 'right' : 'left';
+  const alignSelf = isRTL ? 'flex-start' : 'flex-end';
+  const backButtonPosition = isRTL ? { right: Spacing.lg } : { left: Spacing.lg };
+  const flexDirection = isRTL ? 'row-reverse' : 'row';
+
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('שגיאה', 'אנא הזן אימייל וסיסמה');
+      Alert.alert(
+        t.common.error,
+        language === 'he' ? 'אנא הזן אימייל וסיסמה' : 'Please enter email and password'
+      );
       return;
     }
-    
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setIsLoading(true);
     try {
       await signIn(email, password);
       router.replace('/(tabs)/account');
     } catch (error: any) {
-      Alert.alert('שגיאת התחברות', error.message || 'שם משתמש או סיסמה שגויים');
+      Alert.alert(
+        language === 'he' ? 'שגיאת התחברות' : 'Login Error',
+        error.message ||
+          (language === 'he' ? 'שם משתמש או סיסמה שגויים' : 'Invalid email or password')
+      );
     } finally {
       setIsLoading(false);
     }
@@ -49,31 +65,52 @@ export default function LoginScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <AnimatedPressable 
-        onPress={() => router.back()} 
-        style={[styles.backButton, { top: insets.top + Spacing.sm }]}
+      <AnimatedPressable
+        onPress={() => router.back()}
+        style={[styles.backButton, { top: insets.top + Spacing.sm }, backButtonPosition]}
       >
-        <MaterialIcons name="arrow-back" size={28} color={theme.text} />
+        <MaterialIcons
+          name={isRTL ? 'arrow-forward' : 'arrow-back'}
+          size={26}
+          color={theme.text}
+        />
       </AnimatedPressable>
 
-      <KeyboardAvoidingView 
-        style={{ flex: 1 }} 
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 80 }]}>
-          
+        <ScrollView
+          contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 50 }]}
+          showsVerticalScrollIndicator={false}
+        >
           <Animated.View entering={FadeInDown.springify()}>
-            <Image source={require('../../../assets/images/logo.svg')} style={{ width: 140, height: 140, alignSelf: 'center', marginBottom: Spacing.xl }} contentFit="contain" />
-            <Text variant="4xl" weight="bold" style={styles.title}>
-              {HE.auth.welcomeBack}
+            {/* Farm Brand Header */}
+            <View style={styles.logoContainer}>
+              <Image
+                source={require('../../../assets/images/logo.svg')}
+                style={{ width: 110, height: 110 }}
+                contentFit="contain"
+              />
+            </View>
+
+            <Text variant="3xl" weight="bold" style={[styles.title, { textAlign }]}>
+              {t.auth.welcomeBack}
             </Text>
-            <Text variant="lg" color={theme.textSecondary} style={styles.subtitle}>
-              התחבר לחשבונך כדי להמשיך
+            <Text
+              variant="md"
+              color={theme.textSecondary}
+              style={[styles.subtitle, { textAlign }]}
+            >
+              {language === 'he'
+                ? 'התחבר לחשבונך כדי ליהנות מתוצרת חקלאית טרייה'
+                : 'Sign in to enjoy farm fresh fruits, vegetables & produce'}
             </Text>
-            
+
             <View style={styles.form}>
               <Input
-                label={HE.auth.email}
+                label={t.auth.email}
                 placeholder="mail@example.com"
                 value={email}
                 onChangeText={setEmail}
@@ -82,39 +119,45 @@ export default function LoginScreen() {
                 icon="email"
               />
               <Input
-                label={HE.auth.password}
-                placeholder="********"
+                label={t.auth.password}
+                placeholder="••••••••"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
                 icon="lock"
               />
-              
-              <AnimatedPressable style={styles.forgotPassword}>
-                 <Text variant="md" color={theme.primary} weight="medium">
-                   {HE.auth.forgotPassword}
-                 </Text>
+
+              <AnimatedPressable style={[styles.forgotPassword, { alignSelf }]}>
+                <Text variant="sm" color={theme.primary} weight="semiBold">
+                  {t.auth.forgotPassword}
+                </Text>
               </AnimatedPressable>
 
               <Button
-                title={HE.auth.signIn}
+                title={t.auth.signIn}
                 onPress={handleLogin}
                 loading={isLoading}
                 fullWidth
+                size="lg"
                 style={{ marginTop: Spacing.xl }}
+                icon="login"
               />
             </View>
 
-            <View style={styles.footer}>
-               <Text variant="md" color={theme.textSecondary}>{HE.auth.noAccount}</Text>
-               <AnimatedPressable onPress={() => router.push('/(auth)/register' as any)}>
-                  <Text variant="md" color={theme.primary} weight="bold" style={{ marginLeft: Spacing.xs }}>
-                    {HE.auth.signUp}
-                  </Text>
-               </AnimatedPressable>
+            <View style={[styles.footer, { flexDirection: flexDirection as any }]}>
+              <Text variant="md" color={theme.textSecondary}>
+                {t.auth.noAccount}
+              </Text>
+              <AnimatedPressable
+                onPress={() => router.push('/(auth)/register' as any)}
+                style={{ paddingHorizontal: 4 }}
+              >
+                <Text variant="md" color={theme.primary} weight="bold">
+                  {t.auth.signUp}
+                </Text>
+              </AnimatedPressable>
             </View>
           </Animated.View>
-          
         </ScrollView>
       </KeyboardAvoidingView>
     </ThemedView>
@@ -127,34 +170,37 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    right: Spacing.lg, // RTL
     zIndex: 10,
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     justifyContent: 'center',
     alignItems: 'center',
   },
   scrollContent: {
     padding: Spacing['2xl'],
+    paddingBottom: Spacing['3xl'],
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: Spacing.xl,
   },
   title: {
-    marginBottom: Spacing.sm,
-    textAlign: 'right',
+    marginBottom: Spacing.xs,
   },
   subtitle: {
-    marginBottom: Spacing['2xl'],
-    textAlign: 'right',
+    marginBottom: Spacing.xl,
+    lineHeight: 22,
   },
   form: {
-    marginBottom: Spacing['2xl'],
+    marginBottom: Spacing.xl,
   },
   forgotPassword: {
-    alignSelf: 'flex-start', // RTL left
-    marginTop: Spacing.sm,
+    marginTop: 2,
+    paddingVertical: 4,
   },
   footer: {
-    flexDirection: 'row-reverse',
     justifyContent: 'center',
     alignItems: 'center',
+    gap: 4,
   },
 });

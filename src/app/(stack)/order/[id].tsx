@@ -1,8 +1,9 @@
 // ============================================================
-// Order Detail Screen
+// Order Detail Screen — Farm Order Receipt & Live Tracking
 // ============================================================
 
 import { router, useLocalSearchParams } from 'expo-router';
+import React from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -17,17 +18,21 @@ import { useOrderDetails } from '@/hooks/useOrders';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTranslation } from '@/hooks/useTranslation';
 
-import { Spacing } from '@/constants/theme';
+import { BorderRadius, Shadows, Spacing } from '@/constants/theme';
 import { formatDateTime, formatOrderNumber, formatPrice } from '@/utils/format';
 import { MaterialIcons } from '@expo/vector-icons';
-import Animated, { FadeInUp } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function OrderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const theme = useThemeColor();
   const { t, language } = useTranslation();
-  
+
+  const isRTL = language === 'he';
+  const flexDirection = isRTL ? 'row-reverse' : 'row';
+  const textAlign = isRTL ? 'right' : 'left';
+
   const { data: order, isLoading, isError } = useOrderDetails(id as string);
 
   if (isLoading) {
@@ -41,10 +46,10 @@ export default function OrderDetailScreen() {
   if (isError || !order) {
     return (
       <ThemedView style={styles.centerContainer}>
-        <Text variant="lg" color={theme.error}>
+        <Text variant="lg" color={theme.error} style={{ marginBottom: Spacing.md }}>
           {t.common.error}
         </Text>
-        <Button title={t.common.back} onPress={() => router.back()} style={{ marginTop: 16 }} />
+        <Button title={t.common.back} onPress={() => router.back()} />
       </ThemedView>
     );
   }
@@ -52,103 +57,207 @@ export default function OrderDetailScreen() {
   return (
     <ThemedView style={styles.container}>
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + Spacing.sm, borderBottomColor: theme.border }]}>
+      <View
+        style={[
+          styles.header,
+          {
+            paddingTop: insets.top + Spacing.sm,
+            flexDirection,
+          },
+        ]}
+      >
         <AnimatedPressable onPress={() => router.back()} style={styles.backButton}>
-           <MaterialIcons name="arrow-back" size={24} color={theme.text} />
+          <MaterialIcons name={isRTL ? 'arrow-forward' : 'arrow-back'} size={24} color={theme.text} />
         </AnimatedPressable>
-        <Text variant="xl" weight="bold">{t.order.details}</Text>
+        <Text variant="xl" weight="bold">
+          {t.order.details}
+        </Text>
         <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
-        {/* Order Summary Header */}
-        <Animated.View entering={FadeInUp.delay(100)} style={styles.summaryHeader}>
-          <Text variant="2xl" weight="bold">{formatOrderNumber(order.id)}</Text>
-          <Text variant="md" color={theme.textSecondary}>{formatDateTime(order.created_at, language)}</Text>
+        {/* Farm Order Header Banner */}
+        <Animated.View entering={FadeInDown.springify()} style={styles.summaryHeader}>
+          <View style={[styles.farmBadgeWrap, { backgroundColor: theme.primaryLight }]}>
+            <Text style={{ fontSize: 28 }}>🌾</Text>
+          </View>
+          <Text variant="2xl" weight="bold" color={theme.text}>
+            {formatOrderNumber(order.id)}
+          </Text>
+          <Text variant="sm" color={theme.textSecondary} style={{ marginTop: 2 }}>
+            {formatDateTime(order.created_at, language)}
+          </Text>
         </Animated.View>
 
-        {/* Timeline */}
-        <Animated.View entering={FadeInUp.delay(200)}>
-          <Card style={styles.sectionCard}>
+        {/* Live Tracking Timeline Card */}
+        <Animated.View entering={FadeInDown.delay(100).springify()}>
+          <Card
+            style={[
+              styles.sectionCard,
+              {
+                backgroundColor: theme.surfaceElevated,
+                ...Shadows.sm,
+                shadowColor: theme.shadowColor,
+              },
+            ]}
+          >
+            <View style={[styles.cardTitleRow, { flexDirection }]}>
+              <MaterialIcons name="local-shipping" size={20} color={theme.primary} />
+              <Text variant="md" weight="bold" color={theme.text}>
+                {isRTL ? 'מעקב סטטוס הזמנה' : 'Order Tracking'}
+              </Text>
+            </View>
+
             <OrderTimeline status={order.order_status} />
-            
+
             {order.delivery_slot && (
-              <View style={[styles.deliveryInfo, { borderTopColor: theme.borderLight }]}>
-                <MaterialIcons name="event-available" size={20} color={theme.textSecondary} />
-                <Text variant="md" color={theme.textSecondary} style={{ marginRight: 8 }}>
-                  {language === 'he' ? 'זמן משלוח משוער:' : 'Estimated delivery:'} {order.delivery_slot}
+              <View
+                style={[
+                  styles.deliveryInfo,
+                  {
+                    backgroundColor: theme.surface,
+                    borderRadius: BorderRadius.md,
+                    flexDirection,
+                  },
+                ]}
+              >
+                <MaterialIcons name="schedule" size={18} color={theme.primary} />
+                <Text variant="sm" weight="medium" color={theme.textSecondary}>
+                  {isRTL ? 'חלון זמן למשלוח: ' : 'Delivery window: '}
+                  <Text weight="bold" color={theme.text}>
+                    {order.delivery_slot}
+                  </Text>
                 </Text>
               </View>
             )}
           </Card>
         </Animated.View>
 
-        {/* Items List */}
-        <Animated.View entering={FadeInUp.delay(300)}>
-          <Card style={styles.sectionCard} padding={false}>
-            <View style={{ padding: Spacing.md }}>
-              <Text variant="lg" weight="bold">{t.order.items}</Text>
+        {/* Items List Card */}
+        <Animated.View entering={FadeInDown.delay(200).springify()}>
+          <Card
+            style={[
+              styles.sectionCard,
+              {
+                backgroundColor: theme.surfaceElevated,
+                ...Shadows.sm,
+                shadowColor: theme.shadowColor,
+              },
+            ]}
+            padding={false}
+          >
+            <View style={[styles.cardHeader, { flexDirection }]}>
+              <MaterialIcons name="shopping-basket" size={20} color={theme.primary} />
+              <Text variant="lg" weight="bold" color={theme.text}>
+                {t.order.items}
+              </Text>
             </View>
-            
+
             {order.items?.map((item, index) => (
-              <View 
-                key={item.id} 
+              <View
+                key={item.id}
                 style={[
-                  styles.itemRow, 
-                  { borderTopColor: theme.borderLight },
-                  index === 0 && { borderTopWidth: 0 }
+                  styles.itemRow,
+                  {
+                    flexDirection,
+                    borderTopColor: theme.borderLight,
+                    borderTopWidth: StyleSheet.hairlineWidth,
+                  },
                 ]}
               >
-                <View style={styles.itemMeta}>
-                  <Text variant="md" weight="medium">{item.product_name_snapshot}</Text>
-                  <Text variant="sm" color={theme.textSecondary}>
-                    {item.quantity} x {formatPrice(item.price_snapshot)}
+                <View style={[styles.itemMeta, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
+                  <Text variant="md" weight="medium" color={theme.text}>
+                    {item.product_name_snapshot}
+                  </Text>
+                  <Text variant="xs" color={theme.textTertiary} style={{ marginTop: 2 }}>
+                    {item.quantity} {item.unit_snapshot} × {formatPrice(item.price_snapshot)}
                   </Text>
                 </View>
-                <Text variant="md" weight="bold">
+                <Text variant="md" weight="bold" color={theme.text}>
                   {formatPrice(item.price_snapshot * item.quantity)}
                 </Text>
               </View>
             ))}
-            
-            <View style={[styles.totalsContainer, { backgroundColor: theme.surfaceElevated }]}>
-               <View style={styles.totalRow}>
-                 <Text variant="md" color={theme.textSecondary}>{t.cart.subtotal}</Text>
-                 <Text variant="md">{formatPrice(order.subtotal)}</Text>
-               </View>
-               <View style={styles.totalRow}>
-                 <Text variant="md" color={theme.textSecondary}>{t.cart.deliveryFee}</Text>
-                 <Text variant="md">
-                   {order.delivery_fee === 0 ? (language === 'he' ? 'חינם' : 'Free') : formatPrice(order.delivery_fee)}
-                 </Text>
-               </View>
-               <View style={[styles.totalRow, { marginTop: Spacing.sm }]}>
-                 <Text variant="lg" weight="bold">{t.cart.total}</Text>
-                 <Text variant="xl" weight="bold" color={theme.primary}>{formatPrice(order.grand_total)}</Text>
-               </View>
+
+            {/* Totals Breakdown */}
+            <View
+              style={[
+                styles.totalsContainer,
+                {
+                  backgroundColor: theme.surface,
+                  borderTopColor: theme.borderLight,
+                  borderTopWidth: StyleSheet.hairlineWidth,
+                },
+              ]}
+            >
+              <View style={[styles.totalRow, { flexDirection }]}>
+                <Text variant="sm" color={theme.textSecondary}>
+                  {t.cart.subtotal}
+                </Text>
+                <Text variant="sm" weight="medium">
+                  {formatPrice(order.subtotal)}
+                </Text>
+              </View>
+              <View style={[styles.totalRow, { flexDirection }]}>
+                <Text variant="sm" color={theme.textSecondary}>
+                  {t.cart.deliveryFee}
+                </Text>
+                <Text variant="sm" weight="medium">
+                  {order.delivery_fee === 0
+                    ? isRTL
+                      ? 'חינם'
+                      : 'Free'
+                    : formatPrice(order.delivery_fee)}
+                </Text>
+              </View>
+              <View style={[styles.totalRow, { flexDirection, marginTop: Spacing.xs }]}>
+                <Text variant="lg" weight="bold">
+                  {t.cart.total}
+                </Text>
+                <Text variant="xl" weight="bold" color={theme.primary}>
+                  {formatPrice(order.grand_total)}
+                </Text>
+              </View>
             </View>
           </Card>
         </Animated.View>
 
-        {/* Delivery Details */}
+        {/* Delivery Address Card */}
         {order.address && (
-          <Animated.View entering={FadeInUp.delay(400)}>
-            <Card style={styles.sectionCard}>
-              <Text variant="lg" weight="bold" style={{ marginBottom: Spacing.sm }}>
-                {language === 'he' ? 'כתובת למשלוח' : 'Delivery address'}
+          <Animated.View entering={FadeInDown.delay(300).springify()}>
+            <Card
+              style={[
+                styles.sectionCard,
+                {
+                  backgroundColor: theme.surfaceElevated,
+                  ...Shadows.sm,
+                  shadowColor: theme.shadowColor,
+                },
+              ]}
+            >
+              <View style={[styles.cardTitleRow, { flexDirection }]}>
+                <MaterialIcons name="place" size={20} color={theme.primary} />
+                <Text variant="md" weight="bold" color={theme.text}>
+                  {isRTL ? 'כתובת למשלוח' : 'Delivery Address'}
+                </Text>
+              </View>
+
+              <Text variant="md" weight="medium" style={{ textAlign }}>
+                {order.address.street}, {order.address.city}
               </Text>
-              <Text variant="md">{order.address.street}</Text>
-              <Text variant="md">{order.address.city}</Text>
               {order.address.notes && (
-                <Text variant="sm" color={theme.textSecondary} style={{ marginTop: Spacing.xs }}>
-                  {language === 'he' ? 'הערות:' : 'Notes:'} {order.address.notes}
+                <Text
+                  variant="xs"
+                  color={theme.textSecondary}
+                  style={{ textAlign, marginTop: Spacing.xs }}
+                >
+                  {isRTL ? 'הערות לשליח: ' : 'Driver notes: '}
+                  {order.address.notes}
                 </Text>
               )}
             </Card>
           </Animated.View>
         )}
-
       </ScrollView>
     </ThemedView>
   );
@@ -162,14 +271,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: Spacing.xl,
   },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.md,
-    borderBottomWidth: 1,
+    paddingBottom: Spacing.sm,
   },
   backButton: {
     padding: Spacing.xs,
@@ -179,41 +287,57 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: Spacing.lg,
-    paddingBottom: 40,
+    paddingBottom: 60,
   },
   summaryHeader: {
     alignItems: 'center',
     marginBottom: Spacing.xl,
   },
+  farmBadgeWrap: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
   sectionCard: {
     marginBottom: Spacing.lg,
+    borderRadius: BorderRadius.xl,
+  },
+  cardTitleRow: {
+    alignItems: 'center',
+    gap: Spacing.xs,
+    marginBottom: Spacing.md,
   },
   deliveryInfo: {
-    flexDirection: 'row-reverse',
     alignItems: 'center',
-    paddingTop: Spacing.md,
+    gap: Spacing.xs,
+    padding: Spacing.md,
     marginTop: Spacing.md,
-    borderTopWidth: 1,
+  },
+  cardHeader: {
+    alignItems: 'center',
+    gap: Spacing.xs,
+    padding: Spacing.md,
   },
   itemRow: {
-    flexDirection: 'row-reverse', // RTL
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: Spacing.md,
-    borderTopWidth: 1,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
   },
   itemMeta: {
     flex: 1,
-    alignItems: 'flex-start', // Will be right aligned due to RTL row-reverse
   },
   totalsContainer: {
-    padding: Spacing.md,
-    borderBottomLeftRadius: 16, // Match card radius
-    borderBottomRightRadius: 16,
+    padding: Spacing.lg,
+    borderBottomLeftRadius: BorderRadius.xl,
+    borderBottomRightRadius: BorderRadius.xl,
   },
   totalRow: {
-    flexDirection: 'row-reverse',
     justifyContent: 'space-between',
-    marginBottom: Spacing.xs,
+    alignItems: 'center',
+    marginBottom: 4,
   },
 });

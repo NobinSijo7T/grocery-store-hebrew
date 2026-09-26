@@ -1,14 +1,94 @@
 // ============================================================
-// CategoryChips Component
+// CategoryChips Component — Organic Pill Filters
 // ============================================================
+// Emoji-first, pill-shaped chips with spring selection animation.
+// Scrolls horizontally with fade-in stagger on first render.
 
-import { BorderRadius, Spacing } from '@/constants/theme';
+import { BorderRadius, Shadows, Spacing } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTranslation } from '@/hooks/useTranslation';
 import type { Category } from '@/types/models';
+import { useCallback } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { AnimatedPressable } from '../ui/AnimatedPressable';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  FadeInRight,
+  FadeInLeft,
+} from 'react-native-reanimated';
+import { Pressable } from 'react-native';
 import { Text } from '../ui/Text';
+import { SPRING_CONFIGS } from '@/utils/animations';
+import * as Haptics from 'expo-haptics';
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+interface ChipProps {
+  label: string;
+  emoji?: string | null;
+  isSelected: boolean;
+  onPress: () => void;
+  index: number;
+  isRTL: boolean;
+}
+
+function Chip({ label, emoji, isSelected, onPress, index, isRTL }: ChipProps) {
+  const theme = useThemeColor();
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = useCallback(() => {
+    scale.value = withSpring(0.93, SPRING_CONFIGS.snappy);
+  }, [scale]);
+
+  const handlePressOut = useCallback(() => {
+    scale.value = withSpring(1, SPRING_CONFIGS.gentle);
+  }, [scale]);
+
+  const handlePress = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress();
+  }, [onPress]);
+
+  const EntryAnim = isRTL ? FadeInRight : FadeInLeft;
+
+  return (
+    <Animated.View
+      entering={EntryAnim.delay(index * 40).springify().damping(18).stiffness(100)}
+    >
+      <AnimatedPressable
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        style={[
+          styles.chip,
+          animatedStyle,
+          {
+            backgroundColor: isSelected ? theme.primary : theme.surfaceElevated,
+            ...(isSelected ? Shadows.sm : {}),
+          },
+        ]}
+      >
+        <View style={styles.chipContent}>
+          {emoji && (
+            <Text style={styles.emoji}>{emoji}</Text>
+          )}
+          <Text
+            variant="sm"
+            weight={isSelected ? 'semiBold' : 'medium'}
+            color={isSelected ? '#FFFFFF' : theme.text}
+          >
+            {label}
+          </Text>
+        </View>
+      </AnimatedPressable>
+    </Animated.View>
+  );
+}
 
 interface CategoryChipsProps {
   categories: Category[];
@@ -23,67 +103,41 @@ export function CategoryChips({
   onSelect,
   showAll = true,
 }: CategoryChipsProps) {
-  const theme = useThemeColor();
   const { t, language } = useTranslation();
+  const isRTL = language === 'he';
 
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.container}
-      // In RTL, content flows from right to left, so "All" will appear at the right (left in LTR terms)
     >
-      {/* "All" chip - appears first (rightmost in RTL) */}
+      {/* "All" chip */}
       {showAll && (
-        <AnimatedPressable
+        <Chip
+          label={t.home.seeAll}
+          emoji="🛒"
+          isSelected={!selectedId}
           onPress={() => onSelect(undefined)}
-          style={[
-            styles.chip,
-            {
-              backgroundColor: !selectedId ? theme.primary : theme.surfaceElevated,
-              borderColor: !selectedId ? theme.primary : theme.border,
-            },
-          ]}
-        >
-          <Text
-            variant="sm"
-            weight={!selectedId ? 'semiBold' : 'medium'}
-            color={!selectedId ? '#FFFFFF' : theme.text}
-          >
-            {t.home.seeAll}
-          </Text>
-        </AnimatedPressable>
+          index={0}
+          isRTL={isRTL}
+        />
       )}
 
-      {categories.map((category) => {
+      {categories.map((category, i) => {
         const isSelected = selectedId === category.id;
         const categoryName = language === 'he' ? category.name_he : category.name_en || category.name_he;
-        
+
         return (
-          <AnimatedPressable
+          <Chip
             key={category.id}
+            label={categoryName}
+            emoji={category.icon}
+            isSelected={isSelected}
             onPress={() => onSelect(category.id)}
-            style={[
-              styles.chip,
-              {
-                backgroundColor: isSelected ? theme.primary : theme.surfaceElevated,
-                borderColor: isSelected ? theme.primary : theme.border,
-              },
-            ]}
-          >
-            <View style={styles.content}>
-              {category.icon && (
-                <Text style={styles.icon}>{category.icon}</Text>
-              )}
-              <Text
-                variant="sm"
-                weight={isSelected ? 'semiBold' : 'medium'}
-                color={isSelected ? '#FFFFFF' : theme.text}
-              >
-                {categoryName}
-              </Text>
-            </View>
-          </AnimatedPressable>
+            index={showAll ? i + 1 : i}
+            isRTL={isRTL}
+          />
         );
       })}
     </ScrollView>
@@ -100,16 +154,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
-    borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    minHeight: 38,
   },
-  content: {
+  chipContent: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
   },
-  icon: {
-    fontSize: 16,
+  emoji: {
+    fontSize: 15,
+    lineHeight: 18,
   },
 });

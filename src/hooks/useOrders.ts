@@ -53,9 +53,8 @@ export function useOrders() {
   useEffect(() => {
     if (!customer?.id) return;
 
-    const channel = supabase.channel(`orders-${customer.id}`);
-    
-    channel
+    const channel = supabase
+      .channel(`orders-${customer.id}`)
       .on(
         'postgres_changes',
         { 
@@ -93,9 +92,8 @@ export function useOrderDetails(orderId: string) {
   useEffect(() => {
     if (!orderId) return;
 
-    const channel = supabase.channel(`delivery-${orderId}`);
-    
-    channel
+    const channel = supabase
+      .channel(`delivery-${orderId}`)
       .on(
         'postgres_changes',
         { 

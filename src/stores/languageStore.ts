@@ -23,9 +23,9 @@ interface LanguageState {
 export const useLanguageStore = create<LanguageState>()(
   persist(
     (set) => ({
-      language: 'he',
-      translations: HE,
-      isRTL: true,
+      language: 'en',
+      translations: EN,
+      isRTL: false,
 
       setLanguage: (lang: Language) => {
         const translations = lang === 'he' ? HE : EN;
@@ -42,7 +42,7 @@ export const useLanguageStore = create<LanguageState>()(
       },
     }),
     {
-      name: 'language-storage',
+      name: 'language-storage-v2',
       storage: createJSONStorage(() => AsyncStorage),
     }
   )

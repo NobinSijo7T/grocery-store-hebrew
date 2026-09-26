@@ -2,9 +2,8 @@
 // Stack Layout for Sub-screens
 // ============================================================
 
-import React from 'react';
-import { Stack } from 'expo-router';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import { Stack } from 'expo-router';
 
 export default function StackLayout() {
   const theme = useThemeColor();

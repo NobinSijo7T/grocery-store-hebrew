@@ -2,14 +2,14 @@
 // Admin Layout
 // ============================================================
 
-import React, { useEffect } from 'react';
-import { Tabs, router } from 'expo-router';
-import { useAuthStore } from '@/stores/authStore';
-import { useThemeColor } from '@/hooks/useThemeColor';
-import { MaterialIcons } from '@expo/vector-icons';
 import { Typography } from '@/constants/theme';
-import { Platform, View, ActivityIndicator } from 'react-native';
+import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuthStore } from '@/stores/authStore';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Tabs, router } from 'expo-router';
+import { useEffect } from 'react';
+import { ActivityIndicator, Platform, View } from 'react-native';
 
 export default function AdminLayout() {
   const { isAdmin, session } = useAuthStore();
@@ -42,22 +42,24 @@ export default function AdminLayout() {
         headerTitleStyle: { fontFamily: Typography.fontFamily.bold, fontSize: 18 },
         headerTitleAlign: 'center',
         headerLeft: () => !isRTL ? (
-          <MaterialIcons 
-            name="arrow-back" 
-            size={24} 
-            color={theme.text} 
-            style={{ marginLeft: 16 }} 
-            onPress={() => router.push('/(tabs)/account')} 
-          />
+          <View style={{ marginLeft: 16 }}>
+            <MaterialIcons 
+              name="arrow-back" 
+              size={24} 
+              color={theme.text} 
+              onPress={() => router.push('/(tabs)/account')} 
+            />
+          </View>
         ) : null,
         headerRight: () => isRTL ? (
-          <MaterialIcons 
-            name="arrow-forward" 
-            size={24} 
-            color={theme.text} 
-            style={{ marginRight: 16 }} 
-            onPress={() => router.push('/(tabs)/account')} 
-          />
+          <View style={{ marginRight: 16 }}>
+            <MaterialIcons 
+              name="arrow-forward" 
+              size={24} 
+              color={theme.text} 
+              onPress={() => router.push('/(tabs)/account')} 
+            />
+          </View>
         ) : null,
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.tabBarInactive,

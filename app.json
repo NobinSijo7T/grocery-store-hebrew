@@ -1,23 +1,27 @@
 {
   "expo": {
-    "name": "grocery-store-hebrew",
-    "slug": "grocery-store-hebrew",
+    "name": "Kirshner Farm",
+    "slug": "kirshner-farm",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/app-icons/appstore.png",
-    "scheme": "grocerystorehebrew",
+    "icon": "./assets/images/icon.png",
+    "scheme": "kirshnerfarm",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/images/app-icons/appstore.png",
-      "bundleIdentifier": "com.meshakkirshner.grocery"
+      "icon": "./assets/images/icon.png",
+      "bundleIdentifier": "com.kirshnerfarm.app"
     },
     "android": {
-      "package": "com.meshakkirshner.grocery",
+      "package": "com.kirshnerfarm.app",
       "adaptiveIcon": {
-        "backgroundColor": "#ffffff",
-        "foregroundImage": "./assets/images/app-icons/playstore.png"
+        "backgroundColor": "#2D8A4E",
+        "foregroundImage": "./assets/images/android-icon-foreground.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "windowSoftInputMode": "adjustResize",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "output": "static",
@@ -28,7 +32,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#2D8A4E",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
@@ -43,6 +47,15 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "supabaseUrl": "https://gcihfcmnroxlxwuakvbm.supabase.co",
+      "supabaseAnonKey": "sb_publishable_-KWcVjJbR4TdX1hWVmkU1A_CLv3B7oU",
+      "router": {},
+      "eas": {
+        "projectId": "a85f27c8-8464-4dc3-a1fd-e4abb71e2409"
+      }
+    },
+    "owner": "nobin23t"
   }
 }

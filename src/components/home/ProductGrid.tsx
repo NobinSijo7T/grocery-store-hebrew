@@ -7,7 +7,7 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTranslation } from '@/hooks/useTranslation';
 import type { Product } from '@/types/models';
 import React from 'react';
-import { ActivityIndicator, FlatList, Platform, StyleSheet, View } from 'react-native';
+import { FlatList, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProductCard } from '../product/ProductCard';
 import { Skeleton } from '../ui/Skeleton';
@@ -27,7 +27,7 @@ export function ProductGrid({
   header,
 }: ProductGridProps) {
   const theme = useThemeColor();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const insets = useSafeAreaInsets();
 
   // Calculate bottom padding: tab bar height + bottom margin + safe area
@@ -49,7 +49,8 @@ export function ProductGrid({
               <Skeleton
                 key={`skeleton-${i}`}
                 width={Layout.productCardWidth}
-                height={280}
+                height={290}
+                borderRadius={16}
                 style={styles.skeleton}
               />
             ))}
@@ -61,15 +62,19 @@ export function ProductGrid({
 
   const emptyComponent = (
     <View style={styles.emptyContainer}>
-      <Text variant="lg" color={theme.textSecondary}>
+      <Text variant="4xl" style={styles.emptyEmoji}>🌿</Text>
+      <Text variant="xl" weight="semiBold" style={styles.emptyTitle}>
         {t.product.noResults}
+      </Text>
+      <Text variant="md" color={theme.textSecondary} style={styles.emptySubtitle}>
+        {language === 'he' ? 'נסה קטגוריה אחרת' : 'Try another category'}
       </Text>
     </View>
   );
 
   return (
     <FlatList
-      key={products.length > 0 ? 'grid' : 'empty'} // Force re-render when switching between empty/non-empty
+      key={products.length > 0 ? 'grid' : 'empty'}
       data={products}
       keyExtractor={(item) => item.id}
       numColumns={2}
@@ -80,16 +85,9 @@ export function ProductGrid({
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
       showsVerticalScrollIndicator={false}
-      renderItem={({ item }) => (
-        <ProductCard product={item} />
+      renderItem={({ item, index }) => (
+        <ProductCard product={item} index={index} />
       )}
-      ListFooterComponent={
-        isLoading ? (
-          <View style={styles.footerLoader}>
-            <ActivityIndicator size="small" color={theme.primary} />
-          </View>
-        ) : null
-      }
     />
   );
 }
@@ -98,16 +96,16 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: Spacing.lg,
-    gap: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+    gap: Spacing.md,
     justifyContent: 'space-between',
   },
   skeleton: {
     marginBottom: Spacing.md,
   },
   listContent: {
-    padding: Spacing.lg,
-    // paddingBottom is set dynamically in the component
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.sm,
   },
   columnWrapper: {
     justifyContent: 'space-between',
@@ -116,12 +114,18 @@ const styles = StyleSheet.create({
   emptyContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    padding: Spacing['2xl'],
-    paddingTop: Spacing['4xl'],
-    paddingBottom: Spacing['4xl'],
+    paddingVertical: Spacing['6xl'],
+    paddingHorizontal: Spacing['2xl'],
   },
-  footerLoader: {
-    paddingVertical: Spacing.xl,
-    alignItems: 'center',
+  emptyEmoji: {
+    fontSize: 64,
+    marginBottom: Spacing.lg,
+  },
+  emptyTitle: {
+    marginBottom: Spacing.sm,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    textAlign: 'center',
   },
 });
