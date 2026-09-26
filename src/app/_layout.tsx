@@ -19,27 +19,15 @@ LogBox.ignoreLogs(['Warning: ...']);
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
-// MUST be set BEFORE React renders any components — calling I18nManager.forceRTL
-// from inside useEffect (after first paint) corrupts Android's native view tree,
-// breaking all TextInput keyboard focus until the app is hard-restarted.
-const initialLanguage = useLanguageStore.getState().language;
-const initialIsRTL = initialLanguage === 'he';
-if (initialIsRTL !== I18nManager.isRTL) {
-  I18nManager.allowRTL(initialIsRTL);
-  I18nManager.forceRTL(initialIsRTL);
+// Ensure native I18nManager is kept in standard LTR mode so that Android's native
+// ReactEditText does not have its IME/keyboard focus corrupted. RTL layout is fully handled
+// at the UI level in JavaScript styles (flexDirection: row-reverse, textAlign).
+if (I18nManager.isRTL) {
+  I18nManager.allowRTL(false);
+  I18nManager.forceRTL(false);
 }
 
 export default function RootLayout() {
-  const { isRTL } = useLanguageStore();
-
-  // Only sync runtime RTL if persisted language somehow diverged from the module-level
-  // setup above — users are always warned that language changes require a restart.
-  useEffect(() => {
-    if (isRTL !== I18nManager.isRTL) {
-      I18nManager.allowRTL(isRTL);
-      I18nManager.forceRTL(isRTL);
-    }
-  }, [isRTL]);
 
   const [fontsLoaded] = useFonts({
     'Heebo-Regular': 'https://github.com/OdedEzer/heebo/raw/master/fonts/ttf/Heebo-Regular.ttf',

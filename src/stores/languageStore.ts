@@ -30,14 +30,6 @@ export const useLanguageStore = create<LanguageState>()(
       setLanguage: (lang: Language) => {
         const translations = lang === 'he' ? HE : EN;
         const isRTL = lang === 'he';
-
-        // Update I18nManager if RTL setting changed
-        if (isRTL !== I18nManager.isRTL) {
-          I18nManager.allowRTL(isRTL);
-          I18nManager.forceRTL(isRTL);
-          // Note: Changing RTL requires app restart to take full effect
-        }
-
         set({ language: lang, translations, isRTL });
       },
     }),

@@ -143,6 +143,7 @@ export default function SearchScreen() {
         <Animated.ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
           contentContainerStyle={[styles.filtersScrollContent, { flexDirection }]}
         >
           <AnimatedPressable

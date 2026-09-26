@@ -175,7 +175,11 @@ export default function CheckoutScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           {/* STEP PROGRESS PILL BAR */}
           <View style={[styles.stepIndicatorContainer, { flexDirection }]}>
             {stepsList.map((s, idx) => {

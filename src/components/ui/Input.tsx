@@ -6,14 +6,14 @@ import { BorderRadius, Shadows, Spacing, Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTranslation } from '@/hooks/useTranslation';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRef, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import {
-    Pressable,
-    StyleSheet,
-    TextInput,
-    type NativeSyntheticEvent,
-    type TextInputFocusEventData,
-    type TextInputProps,
+  Platform,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+  type TextInputProps,
 } from 'react-native';
 import { Text } from './Text';
 
@@ -23,21 +23,26 @@ export interface InputProps extends TextInputProps {
   icon?: keyof typeof MaterialIcons.glyphMap;
 }
 
-export function Input({
-  label,
-  error,
-  icon,
-  style,
-  onFocus,
-  onBlur,
-  textAlign: customTextAlign,
-  editable = true,
-  ...props
-}: InputProps) {
+export const Input = forwardRef<TextInput, InputProps>(function Input(
+  {
+    label,
+    error,
+    icon,
+    style,
+    onFocus,
+    onBlur,
+    textAlign: customTextAlign,
+    editable = true,
+    ...props
+  },
+  ref
+) {
   const theme = useThemeColor();
   const { language } = useTranslation();
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<TextInput>(null);
+
+  useImperativeHandle(ref, () => inputRef.current as TextInput);
 
   const isRTL = language === 'he';
   const resolvedTextAlign = customTextAlign || (isRTL ? 'right' : 'left');
@@ -52,35 +57,33 @@ export function Input({
     onBlur?.(e);
   };
 
-  // Programmatic focus — ensures taps on any part of the container still
-  // focus the TextInput even if gesture-handler overlays are intercepting.
   const focusInput = () => {
     if (!editable) return;
     inputRef.current?.focus();
   };
 
   return (
-    <Pressable style={styles.wrapper} onPress={focusInput}>
+    <View style={styles.wrapper}>
       {label && (
-        <Text
-          variant="sm"
-          weight="semiBold"
-          color={isFocused ? theme.primary : theme.text}
-          style={[styles.label, { textAlign: resolvedTextAlign }]}
-        >
-          {label}
-        </Text>
+        <Pressable onPress={focusInput} disabled={!editable}>
+          <Text
+            variant="sm"
+            weight="semiBold"
+            color={isFocused ? theme.primary : theme.text}
+            style={[styles.label, { textAlign: resolvedTextAlign }]}
+          >
+            {label}
+          </Text>
+        </Pressable>
       )}
 
-      <Pressable
-        onPress={focusInput}
-        style={({ pressed }) => [
+      <View
+        style={[
           styles.inputContainer,
           {
             backgroundColor: theme.surfaceElevated,
             borderColor: error ? theme.error : isFocused ? theme.primary : theme.border,
             borderWidth: isFocused || error ? 1.5 : 1,
-            opacity: pressed && editable ? 0.95 : 1,
             ...(isFocused ? Shadows.sm : {}),
             shadowColor: isFocused ? theme.primary : undefined,
             flexDirection: isRTL ? 'row-reverse' : 'row',
@@ -88,12 +91,18 @@ export function Input({
         ]}
       >
         {icon && (
-          <MaterialIcons
-            name={icon}
-            size={22}
-            color={error ? theme.error : isFocused ? theme.primary : theme.textTertiary}
+          <Pressable
+            onPress={focusInput}
+            hitSlop={8}
+            disabled={!editable}
             style={isRTL ? { marginLeft: Spacing.sm } : { marginRight: Spacing.sm }}
-          />
+          >
+            <MaterialIcons
+              name={icon}
+              size={22}
+              color={error ? theme.error : isFocused ? theme.primary : theme.textTertiary}
+            />
+          </Pressable>
         )}
 
         <TextInput
@@ -113,12 +122,11 @@ export function Input({
           placeholderTextColor={theme.textTertiary}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          autoCapitalize="none"
-          autoCorrect={false}
+          autoCapitalize={props.autoCapitalize ?? 'none'}
+          autoCorrect={props.autoCorrect ?? false}
           keyboardAppearance={theme.text === '#FEFEF7' ? 'dark' : 'light'}
-          pointerEvents={editable ? 'auto' : 'none'}
         />
-      </Pressable>
+      </View>
 
       {error && (
         <Text
@@ -129,9 +137,9 @@ export function Input({
           {error}
         </Text>
       )}
-    </Pressable>
+    </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -149,6 +157,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: '100%',
+    paddingVertical: Platform.OS === 'android' ? 0 : 0,
   },
   error: {
     marginTop: Spacing.xs,
