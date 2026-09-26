@@ -5,7 +5,8 @@
 // spring-staggered list entrance, organic empty state.
 
 import { router } from 'expo-router';
-import { ActivityIndicator, FlatList, Platform, StyleSheet, View } from 'react-native';
+import React, { useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Badge } from '@/components/ui/Badge';
@@ -14,14 +15,17 @@ import { Text } from '@/components/ui/Text';
 import { ThemedView } from '@/components/ui/ThemedView';
 import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { SmoothLoader } from '@/components/ui/SmoothLoader';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 
 import { BorderRadius, Shadows, Spacing } from '@/constants/theme';
+import { useAuth } from '@/hooks/useAuth';
 import { useOrders } from '@/hooks/useOrders';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuthStore } from '@/stores/authStore';
 import { formatDateTime, formatOrderNumber, formatPrice } from '@/utils/format';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
 
 export default function OrdersScreen() {
@@ -29,30 +33,131 @@ export default function OrdersScreen() {
   const theme = useThemeColor();
   const { t, language } = useTranslation();
   const customer = useAuthStore(s => s.customer);
+  const { signInWithGoogle } = useAuth();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  const isRTL = language === 'he';
 
   const { data: orders, isLoading, isError, refetch, isRefetching } = useOrders();
+
+  const handleGoogleSignIn = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setIsGoogleLoading(true);
+    try {
+      await signInWithGoogle();
+    } catch (error: any) {
+      Alert.alert(
+        language === 'he' ? 'שגיאת התחברות עם Google' : 'Google Sign-In Error',
+        error.message ||
+          (language === 'he' ? 'לא ניתן להשלים את ההתחברות' : 'Could not complete Google sign-in')
+      );
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
 
   // Not signed in
   if (!customer) {
     return (
-      <ThemedView style={styles.centerContainer}>
-        <Animated.View entering={FadeInDown.springify()} style={styles.authPrompt}>
-          <Text style={styles.authEmoji}>🔐</Text>
-          <Text variant="xl" weight="semiBold" style={styles.authTitle}>
-            {language === 'he' ? 'עליך להתחבר' : 'Sign in required'}
+      <ThemedView style={styles.container}>
+        <View style={[styles.header, { paddingTop: insets.top + Spacing.md }]}>
+          <Text variant="2xl" weight="bold">
+            {t.order.title}
           </Text>
-          <Text variant="md" color={theme.textSecondary} style={styles.authSubtitle}>
+        </View>
+
+        <ScrollView
+          contentContainerStyle={styles.guestScrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Delivery & Orders Emblem */}
+          <Animated.View entering={FadeInDown.springify()} style={styles.guestEmblemContainer}>
+            <View style={[styles.guestEmblemOuter, { backgroundColor: theme.primaryLight }]}>
+              <View style={[styles.guestEmblemInner, { backgroundColor: theme.surface }]}>
+                <MaterialIcons name="local-shipping" size={38} color={theme.primary} />
+              </View>
+            </View>
+          </Animated.View>
+
+          {/* Heading & Subtitle */}
+          <Text variant="2xl" weight="bold" style={styles.guestTitle}>
+            {language === 'he' ? 'מעקב אחר משלוחי המשק' : 'Track Your Farm Deliveries'}
+          </Text>
+          <Text
+            variant="md"
+            color={theme.textSecondary}
+            style={styles.guestSubtitle}
+          >
             {language === 'he'
-              ? 'כדי לצפות בהיסטוריית ההזמנות שלך'
-              : 'To view your order history'}
+              ? 'התחברו כדי לצפות בהזמנות פעילות, לעקוב אחר המשלוח בזמן אמת ולשחזר הזמנות בקלות'
+              : 'Sign in to track active orders in real-time, view digital receipts, and reorder fresh favorites'}
           </Text>
-          <Button
-            title={t.auth.signIn}
-            onPress={() => router.push('/account')}
-            size="lg"
-            style={styles.authBtn}
-          />
-        </Animated.View>
+
+          {/* Order Features list */}
+          <View style={[styles.featuresCard, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
+            <View style={[styles.featureRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <View style={[styles.featureIconBadge, { backgroundColor: theme.primaryLight }]}>
+                <MaterialIcons name="notifications-active" size={18} color={theme.primary} />
+              </View>
+              <Text variant="sm" weight="medium" color={theme.text} style={{ flex: 1, textAlign: isRTL ? 'right' : 'left' }}>
+                {language === 'he' ? 'עדכונים חיים על יציאת המשלוח לדרך' : 'Live dispatch and delivery tracking'}
+              </Text>
+            </View>
+
+            <View style={[styles.featureRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <View style={[styles.featureIconBadge, { backgroundColor: theme.primaryLight }]}>
+                <MaterialIcons name="receipt-long" size={18} color={theme.primary} />
+              </View>
+              <Text variant="sm" weight="medium" color={theme.text} style={{ flex: 1, textAlign: isRTL ? 'right' : 'left' }}>
+                {language === 'he' ? 'היסטוריית רכישות וקבלות דיגיטליות' : 'Complete purchase history and digital receipts'}
+              </Text>
+            </View>
+
+            <View style={[styles.featureRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <View style={[styles.featureIconBadge, { backgroundColor: theme.primaryLight }]}>
+                <MaterialIcons name="replay" size={18} color={theme.primary} />
+              </View>
+              <Text variant="sm" weight="medium" color={theme.text} style={{ flex: 1, textAlign: isRTL ? 'right' : 'left' }}>
+                {language === 'he' ? 'הזמנה חוזרת של מוצרים אהובים בלחיצה' : '1-tap reordering of favorite produce'}
+              </Text>
+            </View>
+          </View>
+
+          {/* Action Card */}
+          <View style={[styles.guestActionCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+            <GoogleSignInButton
+              onPress={handleGoogleSignIn}
+              loading={isGoogleLoading}
+            />
+
+            <View style={styles.dividerContainer}>
+              <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
+              <Text variant="xs" color={theme.textTertiary} style={styles.dividerText}>
+                {language === 'he' ? 'או באמצעות אימייל' : 'or with email'}
+              </Text>
+              <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
+            </View>
+
+            <Button
+              title={t.auth.signIn}
+              onPress={() => router.push('/(auth)/login' as any)}
+              fullWidth
+              size="lg"
+              icon="login"
+            />
+          </View>
+
+          {/* Return to store link */}
+          <AnimatedPressable
+            onPress={() => router.push('/')}
+            style={styles.browseStoreLink}
+          >
+            <MaterialIcons name="storefront" size={20} color={theme.primary} />
+            <Text variant="sm" weight="bold" color={theme.primary}>
+              {t.cart.startShopping}
+            </Text>
+          </AnimatedPressable>
+        </ScrollView>
       </ThemedView>
     );
   }
@@ -104,7 +209,7 @@ export default function OrdersScreen() {
       <ThemedView style={[styles.centerContainer, { paddingTop: insets.top }]}>
         <Animated.View entering={FadeInDown.springify()} style={styles.emptyContent}>
           <View style={[styles.emptyIconBg, { backgroundColor: theme.primaryLight }]}>
-            <Text style={styles.emptyEmoji}>📋</Text>
+            <MaterialIcons name="receipt-long" size={48} color={theme.primary} />
           </View>
           <Text variant="2xl" weight="bold" style={styles.emptyTitle}>
             {t.order.empty}
@@ -260,24 +365,97 @@ const styles = StyleSheet.create({
   emptySubtitle: {
     textAlign: 'center',
   },
-  // Auth prompt
-  authPrompt: {
+  // Guest state
+  guestScrollContent: {
     alignItems: 'center',
-    paddingHorizontal: Spacing['2xl'],
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.md,
+    paddingBottom: Platform.OS === 'ios' ? 120 : 100,
+  },
+  guestEmblemContainer: {
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  guestEmblemOuter: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  guestEmblemInner: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  guestTitle: {
+    textAlign: 'center',
+    marginBottom: Spacing.xs,
+  },
+  guestSubtitle: {
+    textAlign: 'center',
+    lineHeight: 22,
+    maxWidth: 320,
+    marginBottom: Spacing.lg,
+  },
+  featuresCard: {
+    width: '100%',
+    maxWidth: 420,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.md,
+    borderWidth: 1,
+    gap: Spacing.sm,
+    marginBottom: Spacing.lg,
+  },
+  featureRow: {
+    alignItems: 'center',
     gap: Spacing.md,
+    paddingVertical: 4,
   },
-  authEmoji: {
-    fontSize: 52,
-    marginBottom: Spacing.sm,
+  featureIconBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  authTitle: {
-    textAlign: 'center',
+  guestActionCard: {
+    width: '100%',
+    maxWidth: 420,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  authSubtitle: {
-    textAlign: 'center',
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: Spacing.sm,
   },
-  authBtn: {
+  dividerLine: {
+    flex: 1,
+    height: 1,
+  },
+  dividerText: {
+    paddingHorizontal: Spacing.md,
+  },
+  browseStoreLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     marginTop: Spacing.sm,
-    minWidth: 200,
   },
 });

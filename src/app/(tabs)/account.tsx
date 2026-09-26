@@ -23,6 +23,7 @@ import { useThemeStore } from '@/stores/themeStore';
 
 import { BorderRadius, Shadows, Spacing } from '@/constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 
@@ -158,25 +159,61 @@ export default function AccountScreen() {
           </Text>
         </View>
 
-        <View style={styles.loginContainer}>
-          <Animated.View entering={FadeInDown.springify()} style={styles.guestIconBadge}>
-            <Text style={{ fontSize: 52 }}>🌿</Text>
+        <ScrollView
+          contentContainerStyle={styles.guestScrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Farm Brand Emblem */}
+          <Animated.View entering={FadeInDown.springify()} style={styles.guestEmblemContainer}>
+            <View style={[styles.guestEmblemOuter, { backgroundColor: theme.primaryLight }]}>
+              <View style={[styles.guestEmblemInner, { backgroundColor: theme.surface }]}>
+                <Image
+                  source={require('../../../assets/images/logo.svg')}
+                  style={styles.guestLogo}
+                  contentFit="contain"
+                />
+              </View>
+            </View>
           </Animated.View>
 
-          <Text variant="2xl" weight="bold" style={{ marginBottom: Spacing.xs, textAlign: 'center' }}>
-            {language === 'he' ? 'ברוכים הבאים למשק!' : 'Welcome to the Farm!'}
+          {/* Heading & Subtitle */}
+          <Text variant="2xl" weight="bold" style={styles.guestTitle}>
+            {language === 'he' ? 'ברוכים הבאים למשק קירשנר!' : 'Welcome to Kirshner Farm!'}
           </Text>
           <Text
             variant="md"
             color={theme.textSecondary}
-            style={{ textAlign: 'center', lineHeight: 22, marginBottom: Spacing.xl, maxWidth: 300 }}
+            style={styles.guestSubtitle}
           >
             {language === 'he'
-              ? 'התחבר כדי לצפות בהזמנות הטריות שלך, לשמור מוצרים אהובים ולהנות מהטבות מועדון'
-              : 'Sign in to view fresh orders, save your favorite produce, and enjoy farm club perks'}
+              ? 'הצטרפו לחברי המשק כדי להנות מתוצרת חקלאית טרייה, מעקב משלוחים ומחירים מיוחדים'
+              : 'Join our farm club to track fresh harvests, enjoy member pricing, and manage your deliveries'}
           </Text>
 
-          <View style={{ width: '100%', gap: Spacing.sm }}>
+          {/* Farm Perks Badges */}
+          <View style={[styles.perksRow, { flexDirection }]}>
+            <View style={[styles.perkPill, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
+              <MaterialIcons name="eco" size={16} color={theme.primary} />
+              <Text variant="xs" weight="semiBold" color={theme.text}>
+                {language === 'he' ? '100% טרי מהשדה' : '100% Farm Fresh'}
+              </Text>
+            </View>
+            <View style={[styles.perkPill, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
+              <MaterialIcons name="local-shipping" size={16} color={theme.primary} />
+              <Text variant="xs" weight="semiBold" color={theme.text}>
+                {language === 'he' ? 'משלוח ישיר' : 'Direct Delivery'}
+              </Text>
+            </View>
+            <View style={[styles.perkPill, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
+              <MaterialIcons name="stars" size={16} color={theme.primary} />
+              <Text variant="xs" weight="semiBold" color={theme.text}>
+                {language === 'he' ? 'הטבות מועדון' : 'Member Perks'}
+              </Text>
+            </View>
+          </View>
+
+          {/* Action Card */}
+          <View style={[styles.guestActionCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <GoogleSignInButton
               onPress={handleGoogleSignIn}
               loading={isGoogleLoading}
@@ -184,38 +221,41 @@ export default function AccountScreen() {
 
             <View style={styles.dividerContainer}>
               <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
-              <Text variant="sm" color={theme.textTertiary} style={styles.dividerText}>
-                {t.auth.orContinueWith}
+              <Text variant="xs" color={theme.textTertiary} style={styles.dividerText}>
+                {language === 'he' ? 'או באמצעות אימייל' : 'or with email'}
               </Text>
               <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
             </View>
 
-            <Button
-              title={t.auth.signIn}
-              onPress={() => router.push('/(auth)/login' as any)}
-              fullWidth
-              size="lg"
-            />
-            <Button
-              title={t.auth.signUp}
-              variant="outline"
-              onPress={() => router.push('/(auth)/register' as any)}
-              fullWidth
-              size="lg"
-            />
+            <View style={{ gap: Spacing.sm, width: '100%' }}>
+              <Button
+                title={t.auth.signIn}
+                onPress={() => router.push('/(auth)/login' as any)}
+                fullWidth
+                size="lg"
+                icon="login"
+              />
+              <Button
+                title={t.auth.signUp}
+                variant="outline"
+                onPress={() => router.push('/(auth)/register' as any)}
+                fullWidth
+                size="lg"
+              />
+            </View>
           </View>
 
-          {/* Quick Language Toggle even when logged out */}
+          {/* Quick Language Toggle */}
           <AnimatedPressable
             onPress={() => handleLanguageChange(language === 'he' ? 'en' : 'he')}
-            style={[styles.langTogglePill, { backgroundColor: theme.surfaceElevated, ...Shadows.sm }]}
+            style={[styles.langTogglePill, { backgroundColor: theme.surfaceElevated, borderColor: theme.border, borderWidth: 1 }]}
           >
             <MaterialIcons name="language" size={18} color={theme.primary} />
             <Text variant="sm" weight="medium" color={theme.textSecondary}>
               {language === 'he' ? 'עברית | English' : 'English | עברית'}
             </Text>
           </AnimatedPressable>
-        </View>
+        </ScrollView>
       </ThemedView>
     );
   }
@@ -455,20 +495,75 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.md,
     alignItems: 'center',
   },
-  loginContainer: {
-    flex: 1,
-    padding: Spacing['2xl'],
-    justifyContent: 'center',
+  guestScrollContent: {
     alignItems: 'center',
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.md,
+    paddingBottom: Platform.OS === 'ios' ? 120 : 100,
   },
-  guestIconBadge: {
+  guestEmblemContainer: {
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  guestEmblemOuter: {
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: '#E8F5E9',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Spacing.xl,
+  },
+  guestEmblemInner: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  guestLogo: {
+    width: 52,
+    height: 52,
+  },
+  guestTitle: {
+    textAlign: 'center',
+    marginBottom: Spacing.xs,
+  },
+  guestSubtitle: {
+    textAlign: 'center',
+    lineHeight: 22,
+    maxWidth: 320,
+    marginBottom: Spacing.md,
+  },
+  perksRow: {
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: Spacing.xs,
+    marginBottom: Spacing.lg,
+  },
+  perkPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+  },
+  guestActionCard: {
+    width: '100%',
+    maxWidth: 420,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   langTogglePill: {
     flexDirection: 'row',
@@ -477,7 +572,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.lg,
     borderRadius: BorderRadius.full,
-    marginTop: Spacing.xl,
+    marginTop: Spacing.lg,
   },
   scrollContent: {
     padding: Spacing.lg,
