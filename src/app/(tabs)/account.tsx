@@ -5,7 +5,7 @@
 // organic smooth animations and touch feedback.
 
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -13,6 +13,7 @@ import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
 import { ThemedView } from '@/components/ui/ThemedView';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useThemeColor } from '@/hooks/useThemeColor';
@@ -22,6 +23,7 @@ import { useThemeStore } from '@/stores/themeStore';
 
 import { BorderRadius, Shadows, Spacing } from '@/constants/theme';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 
 type Language = 'he' | 'en';
@@ -31,12 +33,29 @@ export default function AccountScreen() {
   const theme = useThemeColor();
 
   const { session, customer, isAdmin } = useAuthStore();
-  const { signOut } = useAuth();
+  const { signOut, signInWithGoogle } = useAuth();
   const { isDark, toggle } = useThemeStore();
   const { t, language, setLanguage } = useTranslation();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const isRTL = language === 'he';
   const flexDirection = isRTL ? 'row-reverse' : 'row';
+
+  const handleGoogleSignIn = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setIsGoogleLoading(true);
+    try {
+      await signInWithGoogle();
+    } catch (error: any) {
+      Alert.alert(
+        language === 'he' ? 'שגיאת התחברות עם Google' : 'Google Sign-In Error',
+        error.message ||
+          (language === 'he' ? 'לא ניתן להשלים את ההתחברות' : 'Could not complete Google sign-in')
+      );
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
 
   const handleLanguageChange = (lang: Language) => {
     Alert.alert(
@@ -157,7 +176,20 @@ export default function AccountScreen() {
               : 'Sign in to view fresh orders, save your favorite produce, and enjoy farm club perks'}
           </Text>
 
-          <View style={{ width: '100%', gap: Spacing.md }}>
+          <View style={{ width: '100%', gap: Spacing.sm }}>
+            <GoogleSignInButton
+              onPress={handleGoogleSignIn}
+              loading={isGoogleLoading}
+            />
+
+            <View style={styles.dividerContainer}>
+              <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
+              <Text variant="sm" color={theme.textTertiary} style={styles.dividerText}>
+                {t.auth.orContinueWith}
+              </Text>
+              <View style={[styles.dividerLine, { backgroundColor: theme.border }]} />
+            </View>
+
             <Button
               title={t.auth.signIn}
               onPress={() => router.push('/(auth)/login' as any)}
@@ -523,5 +555,17 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     marginBottom: Spacing.lg,
     alignItems: 'center',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: Spacing.xs,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+  },
+  dividerText: {
+    paddingHorizontal: Spacing.md,
   },
 });
