@@ -73,15 +73,15 @@ export function RelatedProducts({ categoryId, currentProductId }: RelatedProduct
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: Spacing.xl,
+    marginTop: Spacing.sm,
+    marginBottom: 0,
   },
   headerRow: {
-    paddingHorizontal: Spacing.lg,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
     alignItems: 'center',
     gap: Spacing.xs,
   },
   scrollContent: {
-    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.xs,
   },
 });

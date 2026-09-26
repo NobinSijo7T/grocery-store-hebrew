@@ -165,7 +165,7 @@ export default function ProductDetailScreen() {
       {/* ── Content sheet ── */}
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: 130 + insets.bottom }]}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Spacer that aligns with end of image */}
@@ -180,6 +180,7 @@ export default function ProductDetailScreen() {
               backgroundColor: theme.surfaceElevated,
               borderTopLeftRadius: SHEET_BORDER_RADIUS,
               borderTopRightRadius: SHEET_BORDER_RADIUS,
+              paddingBottom: 84 + insets.bottom,
               ...Shadows.md,
               shadowColor: theme.shadowColor,
             },
@@ -296,7 +297,7 @@ export default function ProductDetailScreen() {
           )}
 
           {/* ── Related products ── */}
-          <View style={styles.section}>
+          <View style={[styles.section, { marginBottom: 0 }]}>
             <RelatedProducts categoryId={product.category_id} currentProductId={product.id} />
           </View>
         </Animated.View>
@@ -423,7 +424,6 @@ const styles = StyleSheet.create({
   },
   sheet: {
     flex: 1,
-    minHeight: SCREEN_HEIGHT * 0.58,
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.md,
   },
